@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0, minimum-scale=0.5">
+  <title>牦牛AI-九班人自己的AI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', sans-serif;
+      background: #000;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- 启动画面 ---------- */
+    #startup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #000 0%, #330000 15%, #660000 30%, #990000 45%, #cc0000 60%, #ff3300 75%, #ff6b35 85%, #ff8e53 95%, #ffb085 100%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .particle-field {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+    }
+
+    .particle-3d {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: radial-gradient(circle, #fff 30%, #ff6b35 100%);
+      border-radius: 50%;
+      animation: float3d 15s linear infinite;
+      box-shadow: 0 0 20px #ff6b35;
+    }
+
+    .energy-vortex {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, transparent 0%, rgba(255, 107, 53, 0.1) 30%, rgba(255, 107, 53, 0.3) 50%, rgba(255, 107, 53, 0.5) 70%, transparent 100%);
+      animation: vortexSpin 20s linear infinite;
+      filter: blur(20px);
+    }
+
+    .quantum-ring {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border: 4px solid;
+      border-image: linear-gradient(45deg, #ff3300, #ff6b35, #ff8e53, #ff6b35, #ff3300) 1;
+      border-radius: 50%;
+      animation: quantumPulse 4s ease-in-out infinite;
+      filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.7));
+    }
+
+    .quantum-ring:nth-child(2) {
+      width: 250px;
+      height: 250px;
+      animation-delay: 1s;
+      animation-duration: 5s;
+    }
+
+    .quantum-ring:nth-child(3) {
+      width: 200px;
+      height: 200px;
+      animation-delay: 2s;
+      animation-duration: 6s;
+    }
+
+    .yak-core {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin-bottom: 50px;
+    }
+
+    .core-rotation {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      animation: coreRotate 20s linear infinite;
+    }
+
+    .core-particle {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle, #fff, #ff6b35);
+      border-radius: 50%;
+      filter: blur(2px);
+      box-shadow: 0 0 20px #ff6b35;
+    }
+
+    .yak-symbol {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 100px;
+      animation: yakPulse 3s ease-in-out infinite;
+      text-shadow: 0 0 50px #ff6b35, 0 0 100px #ff3300, 0 0 150px #cc0000;
+    }
+
+    .data-stream {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .stream-line {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ff6b35, #ff8e53, #ff6b35, transparent);
+      animation: streamFlow 8s linear infinite;
+      filter: blur(1px);
+    }
+
+    .launch-title {
+      color: white;
+      font-size: 64px;
+      font-weight: bold;
+      margin-bottom: 25px;
+      text-shadow: 0 0 40px rgba(255, 107, 53, 1), 0 0 80px rgba(255, 107, 53, 0.8), 0 0 120px rgba(255, 107, 53, 0.5);
+      animation: titlePulse 3s ease-in-out infinite;
+      text-align: center;
+      letter-spacing: 4px;
+      font-family: 'Microsoft YaHei', '黑体', sans-serif;
+    }
+
+    .launch-subtitle {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 28px;
+      margin-bottom: 50px;
+      text-align: center;
+      animation: subtitleFloat 4s ease-in-out infinite;
+      font-weight: 300;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+
+    .class-matrix {
+      width: 90%;
+      max-width: 700px;
+      height: 200px;
+      margin: 40px auto;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(255, 107, 53, 0.3);
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    .matrix-content {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding: 30px;
+      animation: matrixScroll 30s linear infinite;
+    }
+
+    .matrix-item {
+      color: white;
+      font-size: 16px;
+      background: linear-gradient(45deg, rgba(255, 107, 53, 0.1), rgba(255, 142, 83, 0.05));
+      padding: 12px 20px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      text-align: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .quantum-loader {
+      width: 400px;
+      margin-top: 40px;
+    }
+
+    .loader-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+      animation: textGlow 2s ease-in-out infinite;
+    }
+
+    .loader-bar {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .quantum-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #330000, #660000, #990000, #cc0000, #ff3300, #ff6b35, #ff8e53, #ffb085);
+      border-radius: 6px;
+      width: 0%;
+      background-size: 400% 100%;
+      box-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+      animation: loading 6s cubic-bezier(0.4, 0, 0.2, 1) forwards, gradientShift 4s ease-in-out infinite;
+    }
+
+    .loader-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: glowMove 2s linear infinite;
+    }
+
+    /* ---------- 关闭动画 ---------- */
+    #shutdown {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .shutdown-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+
+    .implosion-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 4px solid #ff6b35;
+      border-radius: 50%;
+      animation: implode 2s ease-out forwards;
+      box-shadow: 0 0 50px rgba(255, 107, 53, 0.7);
+    }
+
+    .particle-explosion {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .explosion-particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #ff6b35;
+      border-radius: 50%;
+      animation: explodeParticle 1.5s ease-out forwards;
+    }
+
+    .goodbye-text {
+      color: #ff6b35;
+      font-size: 48px;
+      margin-top: 50px;
+      font-weight: bold;
+      animation: fadeOut 2s ease-out 1s forwards;
+      text-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+    }
+
+    /* ---------- 主应用界面 ---------- */
+    #app {
+      display: none;
+      width: 100%;
+      flex: 1;
+      flex-direction: column;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, #8b0000 0%, #cc0000 25%, #ff3300 50%, #ff6b35 75%, #ff8e53 100%);
+      padding: 20px 30px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 5px 30px rgba(255, 107, 53, 0.5);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .app-header h1 {
+      font-size: 36px;
+      margin: 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .app-header .subtitle {
+      font-size: 20px;
+      opacity: 0.95;
+      margin-top: 10px;
+      font-weight: 300;
+    }
+
+    .footer-support {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      color: rgba(255, 255, 255, 0.7);
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 14px;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255, 107, 53, 0.4);
+      flex-shrink: 0;
+    }
+
+    .footer-support span {
+      color: #ffb085;
+      font-weight: bold;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 20px 15px 80px;
+      width: 100%;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 107, 53, 0.15);
+      min-height: 55vh;
+      max-height: 70vh;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      padding: 15px 20px;
+      border-radius: 18px;
+      max-width: 85%;
+      animation: messageAppear 0.4s ease-out;
+      line-height: 1.5;
+      position: relative;
+      word-wrap: break-word;
+    }
+
+    .message.ai {
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 142, 83, 0.08));
+      color: #ffd8c9;
+      margin-right: auto;
+      border-left: 4px solid #ff6b35;
+      box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .message.ai::before {
+      content: '🐂';
+      position: absolute;
+      left: -40px;
+      font-size: 20px;
+    }
+
+    .message.user {
+      background: linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(100, 170, 250, 0.08));
+      color: #c9e2ff;
+      margin-left: auto;
+      border-right: 4px solid #4a90e2;
+      box-shadow: -5px 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .message.user::before {
+      content: '👤';
+      position: absolute;
+      right: -40px;
+      font-size: 20px;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      display: flex;
+      gap: 10px;
+    }
+
+    .message-input {
+      flex: 1;
+      padding: 14px 22px;
+      border: 2px solid rgba(255, 107, 53, 0.45);
+      border-radius: 30px;
+      background: rgba(0, 0, 0, 0.65);
+      color: white;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .message-input:focus {
+      border-color: #ff6b35;
+      box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, #ff6b35, #ff8e53);
+      border: none;
+      color: white;
+      padding: 14px 32px;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .exit-section {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+
+    .exit-btn {
+      background: linear-gradient(135deg, #ff0000 0%, #ff3333 25%, #ff6666 50%, #ff9999 75%, #ffcccc 100%);
+      padding: 20px 60px;
+      font-size: 24px;
+      border: 4px solid rgba(255, 255, 255, 0.6);
+      border-radius: 40px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 40px rgba(255, 0, 0, 0.7), 0 5px 20px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      animation: exitBtnGlow 2s ease-in-out infinite alternate;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .exit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: exitShine 3s linear infinite;
+    }
+
+    .exit-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 0 60px rgba(255, 0, 0, 0.9), 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .exit-btn:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* ---------- 状态动画 ---------- */
+    .thinking-animation {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+    }
+
+    .thinking-dot {
+      width: 8px;
+      height: 8px;
+      background: #ff6b35;
+      border-radius: 50%;
+      animation: thinkingWave 1.4s ease-in-out infinite;
+    }
+
+    .thinking-dot:nth-child(1) { animation-delay: 0s; }
+    .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .searching-status,
+    .organizing-status,
+    .reading-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      color: #ffb085;
+      font-style: italic;
+    }
+
+    .searching-dot,
+    .organizing-dot,
+    .reading-dot {
+      width: 6px;
+      height: 6px;
+      background: #ffb085;
+      border-radius: 50%;
+      animation: searchingPulse 1.2s ease-in-out infinite;
+    }
+
+    .organizing-dot {
+      background: #ff6b35;
+      animation: organizingPulse 1.3s ease-in-out infinite;
+    }
+
+    .typing-container {
+      position: relative;
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1.2em;
+      background: #ff6b35;
+      margin-left: 2px;
+      animation: blinkCursor 1s step-end infinite;
+      vertical-align: middle;
+    }
+
+    /* 图片消息样式 */
+    .image-message img {
+      max-width: 100%;
+      border-radius: 16px;
+      margin-top: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 107, 53, 0.4);
+      background: #111;
+      display: block;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .image-message img:hover {
+      transform: scale(1.02);
+    }
+
+    .image-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .image-btn {
+      background: rgba(255, 107, 53, 0.2);
+      border: 1px solid rgba(255, 107, 53, 0.5);
+      color: #ffb085;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(4px);
+    }
+
+    .image-btn:hover {
+      background: rgba(255, 107, 53, 0.4);
+      border-color: #ff8e53;
+      color: white;
+    }
+
+    .attribution {
+      font-size: 0.8rem;
+      color: #ffb085;
+      margin-top: 6px;
+      opacity: 0.9;
+    }
+
+    /* 图片预览遮罩 */
+    .image-preview-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 3000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: zoom-out;
+    }
+
+    .image-preview-overlay img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 20px;
+      box-shadow: 0 0 60px rgba(255, 107, 53, 0.6);
+      border: 3px solid rgba(255, 107, 53, 0.5);
+    }
+
+    @keyframes float3d {
+      0% { transform: translateZ(-1000px) rotateX(0deg) rotateY(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateZ(1000px) rotateX(720deg) rotateY(360deg); opacity: 0; }
+    }
+
+    @keyframes vortexSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes quantumPulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+
+    @keyframes coreRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes yakPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+      50% { transform: translate(-50%, -50%) scale(1.15) rotate(3deg); }
+    }
+
+    @keyframes streamFlow {
+      0% { transform: translateX(-100%) translateY(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateX(100%) translateY(100vh); opacity: 0; }
+    }
+
+    @keyframes titlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes subtitleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes matrixScroll {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    @keyframes textGlow {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes glowMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    @keyframes implode {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    @keyframes explodeParticle {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes messageAppear {
+      from { opacity: 0; transform: translateY(20px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes exitBtnGlow {
+      0% { box-shadow: 0 0 40px rgba(255, 0, 0, 0.7); }
+      100% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.9); }
+    }
+
+    @keyframes exitShine {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    @keyframes thinkingWave {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes searchingPulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    @keyframes organizingPulse {
+      0%, 100% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    @keyframes blinkCursor {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    @keyframes loading {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .launch-title { font-size: 40px; }
+      .launch-subtitle { font-size: 20px; }
+      .yak-core { width: 200px; height: 200px; }
+      .yak-symbol { font-size: 70px; }
+      .class-matrix { height: 150px; }
+      .quantum-loader { width: 300px; }
+      .chat-container { padding: 10px 10px 70px; }
+      .messages { padding: 15px; min-height: 50vh; max-height: 55vh; }
+      .message { padding: 12px 15px; max-width: 92%; }
+      .message.ai::before, .message.user::before { display: none; }
+      .exit-btn { padding: 18px 30px; font-size: 20px; max-width: 300px; }
+      .app-header h1 { font-size: 28px; }
+      .app-header .subtitle { font-size: 16px; }
+      .footer-support { font-size: 12px; padding: 10px; }
+      .input-wrapper { flex-direction: column; }
+      .send-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="startup">
+    <div class="energy-vortex" style="top: 10%; left: 5%;"></div>
+    <div class="energy-vortex" style="bottom: 10%; right: 5%; animation-delay: 3s;"></div>
+    <div class="quantum-ring" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+    <div class="quantum-ring" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+    <div class="quantum-ring" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+    <div class="particle-field" id="particleField"></div>
+    <div class="data-stream" id="dataStream"></div>
+    <div class="yak-core">
+      <div class="core-rotation" id="coreRotation"></div>
+      <div class="yak-symbol">🐂</div>
+    </div>
+    <h1 class="launch-title">牦牛AI</h1>
+    <div class="launch-subtitle">九班人自己的AI · 专为九班而生</div>
+    <div class="class-matrix">
+      <div class="matrix-content" id="matrixContent"></div>
+    </div>
+    <div class="quantum-loader">
+      <div class="loader-text">启动牦牛AI核心系统...</div>
+      <div class="loader-bar">
+        <div class="quantum-progress"></div>
+        <div class="loader-glow"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="shutdown">
+    <div class="shutdown-container">
+      <div class="implosion-ring"></div>
+      <div class="particle-explosion" id="particleExplosion"></div>
+    </div>
+    <div class="goodbye-text">再见，九班同学！</div>
+  </div>
+
+  <div id="app">
+    <div class="app-header">
+      <h1>🐂 牦牛AI - 九班人自己的AI</h1>
+      <div class="subtitle">八年级九班专属智能助手</div>
+    </div>
+    <div class="chat-container">
+      <div class="messages" id="messageContainer"></div>
+      <div class="input-container">
+        <div class="input-wrapper">
+          <input type="text" class="message-input" id="messageInput" placeholder="提问或输入「生成图片: 描述」..." />
+          <button class="send-btn" id="sendButton">发送</button>
+        </div>
+      </div>
+      <div class="exit-section">
+        <button class="exit-btn" id="exitButton">🚪 退出系统</button>
+      </div>
+    </div>
+    <div class="footer-support" id="footerSupport">
+      技术支持：灿然科技<span>牦牛工作室 Maoniu studio</span> - 为九班同学量身定制
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- 班级完整数据（一字不删）----------
+      const classmates = {
+        "李雅萱": ["文静优雅", "学习认真努力", "字写得特别漂亮", "乐于帮助同学", "小组合作时特别积极", "待人亲切友善", "课堂笔记记得特别详细"],
+        "杨谌晨": ["思维非常活跃", "数学特别擅长", "反应速度极快", "课堂积极发言", "运动细胞发达", "解题思路新颖", "乐于分享学习方法"],
+        "张谦": ["谦虚有礼貌", "做事稳重可靠", "绘画天赋出众", "集体荣誉感强", "乐于分享知识", "待人真诚友善", "学习态度端正"],
+        "胡钉铫": ["动手能力极强", "技术宅属性", "编程高手级别", "逻辑思维严密", "创新意识强烈", "解决问题能力强", "对科技充满热情"],
+        "谭佳豪": ["乐观开朗活泼", "体育健将水平", "篮球打得超棒", "团队协作极佳", "幽默风趣可爱", "乐于带动气氛", "运动天赋出众"],
+        "叶灿鑫": ["阳光帅气开朗", "英语流利标准", "口语表达能力好", "多才多艺全面", "组织能力突出", "待人热情真诚", "学习积极主动"],
+        "龙艺坤": ["艺术细胞丰富", "音乐天赋显著", "唱歌特别好听", "表演能力出众", "创意十足有趣", "审美眼光独特", "文艺气质明显"],
+        "邓鑫宇": ["踏实勤奋努力", "物理特别擅长", "实验细致认真", "笔记整齐清晰", "学习方法科学", "做事有条不紊", "学习效果显著"],
+        "饶均": ["全面发展均衡", "各科成绩优秀", "做事有条有理", "时间管理得当", "目标明确清晰", "学习效率很高", "综合素质突出"],
+        "刘可馨": ["温柔可爱善良", "语文特别优秀", "作文写得生动", "阅读广泛深入", "表达能力出色", "待人亲切温暖", "学习态度认真"],
+        "张鸿阳": ["阳光向上积极", "体育全能选手", "班长气质明显", "领导能力强悍", "责任心非常重", "组织能力出众", "同学信任度高"],
+        "贾杍锜": ["聪明伶俐机智", "数学思维敏捷", "解题速度飞快", "逻辑清晰明了", "分析能力强悍", "学习效率极高", "数学天赋显著"],
+        "王史颖": ["历史知识丰富", "记忆力超强", "故事讲述生动", "知识面极广", "阅读量非常大", "学习兴趣浓厚", "人文素养深厚"],
+        "黄文洁": ["文笔优美动人", "作文出众精彩", "阅读理解深刻", "文学素养很高", "表达细腻感人", "语文功底扎实", "写作能力突出"],
+        "王雨馨": ["音乐才华出众", "钢琴弹得优美", "艺术感觉敏锐", "审美能力强大", "气质优雅大方", "舞台表现力强", "音乐理解深刻"],
+        "羊海荣": ["地理知识渊博", "地图记忆强大", "空间思维优秀", "方向感特别强", "记忆方法独特", "地理兴趣浓厚", "学习效果显著"],
+        "邹博文": ["博学多才全面", "知识渊博广泛", "阅读量极大", "写作能力强大", "文化底蕴深厚", "思考问题深入", "学习态度严谨"],
+        "刘墨翰": ["书法特长突出", "字写得工整美", "耐心细致认真", "传统文化热爱", "专注力超强", "艺术修养深厚", "做事一丝不苟"],
+        "敬帮承": ["乐于助人热心", "团队合作极佳", "责任心强烈", "服务意识强大", "人际关系良好", "集体观念强", "乐于奉献付出"],
+        "梁习念": ["学习刻苦努力", "记忆方法科学", "复习系统完整", "自律性极强", "计划性强", "学习效果明显", "自我要求严格"],
+        "贺语涵": ["语言表达能力好", "演讲能力强悍", "辩论赛常胜选手", "思路清晰明了", "反应速度迅速", "逻辑思维严密", "表达自信大方"],
+        "黄续然": ["连续进步显著", "学习态度端正", "自我要求严格", "不断超越自我", "成长速度飞快", "进步明显可见", "学习动力充足"],
+        "敬浩宇": ["志向远大宏伟", "目标明确清晰", "执行力强悍", "领导潜力巨大", "胸怀宽广开阔", "规划能力强", "未来可期可见"],
+        "许峻豪": ["坚毅果敢勇猛", "体育特长生水平", "意志力超强", "不服输精神佳", "竞技心态良好", "身体素质优秀", "运动天赋显著"],
+        "邓宛心": ["心灵手巧细致", "手工制作精美", "美术设计创意", "创意独特新颖", "审美能力强大", "动手能力强", "艺术感觉敏锐"],
+        "张睿姿": ["聪明睿智机敏", "思维敏捷迅速", "学习成绩优秀", "全面发展均衡", "潜力巨大明显", "学习能力强", "综合素质高"],
+        "贾茹菲": ["细腻温柔体贴", "英语发音标准", "语言感觉敏锐", "文化交流能力强", "国际视野开阔", "学习态度认真", "英语水平突出"],
+        "杨欣萍": ["勤奋努力刻苦", "化学特别擅长", "实验操作规范", "科学思维严密", "严谨细致认真", "学习态度端正", "化学兴趣浓厚"],
+        "邓嘉兴": ["阳光男孩开朗", "数学竞赛选手", "逻辑推理强大", "解题思路新颖", "思维独特创新", "学习热情高涨", "数学天赋出众"],
+        "童诗淇": ["诗意女孩浪漫", "语文特别优秀", "诗歌创作优美", "文艺青年气质", "情感丰富细腻", "文学素养深厚", "创作能力突出"],
+        "贾锦琪": ["全面发展均衡", "多才多艺全面", "学习效率极高", "方法得当科学", "综合素质强悍", "能力全面突出", "学习效果显著"],
+        "母珈仪": ["端庄大方得体", "历史知识丰富", "传统文化了解深", "礼仪得体规范", "气质优雅出众", "人文素养深厚", "学习态度认真"],
+        "马欣怡": ["开朗活泼可爱", "英语口语流利", "表演能力出众", "舞台表现力强", "自信大方得体", "学习热情高涨", "英语水平突出"],
+        "王兴澔": ["体育健将水平", "运动全能选手", "身体素质优秀", "团队合作极佳", "竞技精神强大", "运动天赋显著", "体育特长突出"],
+        "范心怡": ["心灵美丽善良", "乐于助人热心", "班级服务积极", "人际关系和谐", "善良真诚可爱", "集体荣誉感强", "乐于奉献付出"],
+        "周豪伟": ["豪迈大气开朗", "物理竞赛选手", "实验能力强悍", "科学探索精神", "好奇心强烈", "物理兴趣浓厚", "学习热情高涨"],
+        "徐晟皓": ["阳光帅气开朗", "数学思维敏捷", "编程能力强悍", "技术创新意识", "动手能力强", "学习态度认真", "科技兴趣浓厚"],
+        "李煜航": ["文艺青年气质", "音乐创作优美", "吉他弹得动听", "艺术表达力强", "情感丰富细腻", "音乐才华出众", "创作能力突出"],
+        "刘新颜": ["创新思维活跃", "美术设计创意", "创意独特新颖", "审美能力强大", "想象力丰富", "艺术感觉敏锐", "设计能力突出"],
+        "王雨欣": ["勤奋好学努力", "英语特别优秀", "学习方法科学", "笔记整理系统", "效率极高", "学习态度端正", "英语水平突出"],
+        "蒲佳玲": ["细致认真严谨", "化学实验精通", "观察能力强悍", "科学态度严谨", "责任心强烈", "学习效果显著", "化学兴趣浓厚"],
+        "卢绎臣": ["思维缜密严谨", "数学逻辑强大", "推理能力优秀", "分析问题深入", "解决问题能力强", "学习态度认真", "数学天赋出众"],
+        "王俪瞳": ["美丽大方优雅", "语文素养很高", "朗诵能力出众", "文学鉴赏力强", "表达优美动人", "学习热情高涨", "语文水平突出"],
+        "谢凤娟": ["温柔善良体贴", "生物兴趣浓厚", "自然观察细致", "科学探究精神", "好奇心强烈", "学习态度认真", "生物兴趣浓厚"],
+        "李紫川": ["文艺气质明显", "绘画天赋出众", "艺术感觉敏锐", "审美能力强大", "创意表达新颖", "艺术才华突出", "学习态度认真"],
+        "张梦妮": ["梦想远大宏伟", "英语演讲出色", "国际视野开阔", "文化交流能力强", "自信开朗大方", "英语水平突出", "学习热情高涨"],
+        "巨妮蕊": ["认真细致严谨", "数学基础扎实", "解题规范标准", "学习态度端正", "进步明显可见", "学习效果显著", "数学兴趣浓厚"],
+        "吴鑫桐": ["音乐才华出众", "钢琴弹得优美", "音乐理解深刻", "艺术表现力强", "舞台经验丰富", "音乐天赋显著", "学习态度认真"],
+        "康芮溪": ["文静内秀优雅", "语文功底扎实", "阅读能力强悍", "文学理解深刻", "写作有深度", "学习态度认真", "语文水平突出"],
+        "汪馨语": ["语言优美动人", "英语表达流利", "翻译能力强悍", "跨文化理解深", "沟通能力强", "英语水平突出", "学习热情高涨"],
+        "吴峻熙": ["阳光男孩开朗", "体育全能选手", "运动天赋出众", "团队协作极佳", "领导能力初显", "体育特长突出", "学习态度认真"],
+        "王政": ["政治敏感敏锐", "时事关注很多", "分析能力强悍", "逻辑思维严密", "表达能力强", "政治兴趣浓厚", "学习态度认真"],
+        "叶语晨": ["语言天赋出众", "多语学习优秀", "语言感觉敏锐", "文化交流能力强", "国际视野开阔", "语言天赋显著", "学习热情高涨"],
+        "张洋霆（牦牛本人）": ["AI创造者天才", "技术大神级别", "编程高手水平", "创新思维强大", "班级技术担当", "乐于助人热心", "幽默风趣可爱", "同学的好伙伴"],
+        "刘思博": ["思维广阔开阔", "知识面宽广泛", "阅读量极大", "思考深入深刻", "见解独到新颖", "学习态度认真", "综合素质突出"],
+        "杜昊泽": ["体育健将水平", "篮球高手级别", "团队合作极佳", "竞技精神强大", "身体素质优秀", "体育特长突出", "学习态度认真"],
+        "李佳欢": ["欢乐源泉开心", "幽默风趣可爱", "班级开心果", "人际关系极佳", "乐观积极向上", "气氛带动者", "学习态度认真"],
+        "庞钰萱": ["多才多艺全面", "舞蹈特长突出", "艺术感觉敏锐", "表演能力出众", "舞台经验丰富", "艺术才华显著", "学习态度认真"],
+        "刘露": ["清新自然可爱", "英语口语流利", "发音标准规范", "语言学习能力强", "交流顺畅自然", "英语水平突出", "学习态度认真"],
+        "李晨涵": ["文静好学努力", "数学逻辑严密", "解题思路清晰", "学习效率很高", "成绩稳定优秀", "学习态度认真", "数学兴趣浓厚"],
+        "贾雨琪": ["雨露均沾均衡", "各科均衡发展", "全面发展优秀", "综合素质很高", "潜力巨大明显", "学习态度认真", "能力全面突出"],
+        "马浩洋": ["浩瀚如海渊博", "知识丰富广泛", "阅读广泛深入", "思考深入深刻", "见解独特新颖", "学习态度认真", "综合素质突出"]
+      };
+
+      const teachers = {
+        '王贵强': ['数学老师', '班主任', '教学严谨认真', '关心每一个学生', '经验丰富', '严格要求', '备课充分'],
+        '吴欣然': ['语文老师', '文采飞扬', '讲课生动有趣', '温柔有耐心', '博学多才', '善于启发', '批改作业认真'],
+        '魏彤': ['英语老师', '口语流利', '教学方法新颖', '课堂互动多', '活泼开朗', '善于鼓励', '教学热情高'],
+        '田垒': ['体育老师', '充满活力', '运动技能全面', '组织能力强', '严格要求', '安全第一', '团队精神好'],
+        '苟花海': ['政治老师', '知识渊博', '理论联系实际', '讲课深入浅出', '思维严谨', '关注时事', '引导思考好'],
+        '张金龙': ['历史老师', '故事讲得好', '知识面广', '引人入胜', '幽默风趣', '分析透彻', '记忆方法多'],
+        '徐静': ['地理老师', '地图分析强', '讲课清晰明了', '注重实践', '耐心细致', '联系生活', '教学方法好'],
+        '邓心柔': ['生物老师', '实验操作规范', '讲解细致', '科学态度严谨', '和蔼可亲', '热爱自然', '观察力强'],
+        '凡淼': ['信息技术老师', '技术能力强', '思维活跃', '创新意识强', '与时俱进', '实践指导好', '耐心解答'],
+        '王宇': ['物理老师', '实验丰富有趣', '逻辑清晰', '注重思维训练', '严谨认真', '启发思考', '联系实际好']
+      };
+
+      // ---------- 智能响应系统（保留全部原有逻辑）----------
+      class SmartResponseSystem {
+        constructor() {
+          this.history = [];
+          this.maxHistory = 100;
+          this.nicknameMap = this.buildNicknameMap();
+          this.searchCache = {};
+          this.searchTime = 1200;
+        }
+
+        buildNicknameMap() {
+          const map = {};
+          for (const teacherName in teachers) {
+            map[teacherName] = { type: 'teacher', fullName: teacherName };
+            if (teacherName.length >= 2) {
+              const lastTwo = teacherName.slice(-2);
+              if (!map[lastTwo] || map[lastTwo].type !== 'teacher') map[lastTwo] = { type: 'teacher', fullName: teacherName };
+            }
+            if (teacherName.length >= 1) {
+              const lastOne = teacherName.slice(-1);
+              if (!map[lastOne] || map[lastOne].type !== 'teacher') map[lastOne] = { type: 'teacher', fullName: teacherName };
+            }
+            if (teacherName.length >= 2) {
+              const firstTwo = teacherName.slice(0, 2);
+              if (!map[firstTwo] || map[firstTwo].type !== 'teacher') map[firstTwo] = { type: 'teacher', fullName: teacherName };
+            }
+          }
+          map['数学老师'] = { type: 'teacher', fullName: '王贵强' };
+          map['语文老师'] = { type: 'teacher', fullName: '吴欣然' };
+          map['英语老师'] = { type: 'teacher', fullName: '魏彤' };
+          map['体育老师'] = { type: 'teacher', fullName: '田垒' };
+          map['政治老师'] = { type: 'teacher', fullName: '苟花海' };
+          map['历史老师'] = { type: 'teacher', fullName: '张金龙' };
+          map['地理老师'] = { type: 'teacher', fullName: '徐静' };
+          map['生物老师'] = { type: 'teacher', fullName: '邓心柔' };
+          map['信息技术老师'] = { type: 'teacher', fullName: '凡淼' };
+          map['物理老师'] = { type: 'teacher', fullName: '王宇' };
+          map['班主任'] = { type: 'teacher', fullName: '王贵强' };
+
+          for (const fullName in classmates) {
+            const name = fullName.replace('（牦牛本人）', '');
+            if (!map[name] || map[name].type !== 'teacher') map[name] = { type: 'student', fullName: fullName };
+            if (name.length >= 2) {
+              const lastTwo = name.slice(-2);
+              if (!map[lastTwo] || map[lastTwo].type !== 'teacher') map[lastTwo] = { type: 'student', fullName: fullName };
+            }
+            if (name.length >= 1) {
+              const lastOne = name.slice(-1);
+              if (!map[lastOne] || map[lastOne].type !== 'teacher') map[lastOne] = { type: 'student', fullName: fullName };
+            }
+            if (name.length >= 2) {
+              const firstTwo = name.slice(0, 2);
+              if (!map[firstTwo] || map[firstTwo].type !== 'teacher') map[firstTwo] = { type: 'student', fullName: fullName };
+            }
+          }
+          return map;
+        }
+
+        analyze(message) {
+          const lowerMsg = message.toLowerCase();
+          return {
+            isCalculation: this.isMathCalculation(message),
+            containsName: this.findNameInMessage(lowerMsg),
+            isGreeting: this.isGreeting(lowerMsg),
+            isWho: this.isWhoQuestion(lowerMsg),
+            isImageGeneration: this.isImageGenerationRequest(message),
+            originalMessage: message
+          };
+        }
+
+        // 新增：图片生成指令检测
+        isImageGenerationRequest(message) {
+          const patterns = [/^生成图片[:：]\s*(.+)/i, /^\/image\s+(.+)/i, /^画一张[:：]\s*(.+)/i];
+          for (const p of patterns) {
+            const match = message.match(p);
+            if (match && match[1]?.trim()) {
+              return { isImage: true, prompt: match[1].trim() };
+            }
+          }
+          return { isImage: false };
+        }
+
+        findNameInMessage(message) {
+          const sortedKeys = Object.keys(this.nicknameMap).sort((a, b) => b.length - a.length);
+          for (const nickname of sortedKeys) {
+            if (nickname.length <= 1) continue;
+            const lowerNickname = nickname.toLowerCase();
+            if (lowerNickname.length === 1) continue;
+            const exactMatch = new RegExp(`(^|[^\\u4e00-\\u9fa5])${lowerNickname}([^\\u4e00-\\u9fa5]|$)`, 'i');
+            if (exactMatch.test(message)) {
+              const info = this.nicknameMap[nickname];
+              return { found: true, nickname: nickname, fullName: info.fullName, type: info.type };
+            }
+          }
+          return { found: false };
+        }
+
+        isMathCalculation(message) {
+          const hasNumbers = /\d/.test(message);
+          const hasOperators = /[+\-*/%^=]/.test(message);
+          if (hasNumbers && (hasOperators || message.includes('等于') || message.includes('='))) {
+            try {
+              let expr = message.replace(/[^0-9+\-*/%^.()\s]/g, '');
+              expr = expr.replace(/×/g, '*').replace(/÷/g, '/');
+              if (expr.length > 0 && expr.length < 50) {
+                const result = Function(`"use strict"; return (${expr})`)();
+                if (!isNaN(result) && isFinite(result)) {
+                  return { isMath: true, expression: expr, result: result };
+                }
+              }
+            } catch (e) {}
+          }
+          return { isMath: false };
+        }
+
+        isGreeting(message) {
+          const greetings = ['你好', 'hi', 'hello', '嗨', '在吗', '您好', '哈喽', '嘿'];
+          return greetings.some(greet => message.includes(greet));
+        }
+
+        isWhoQuestion(message) {
+          const whoPatterns = ['你谁', '你是谁', 'who are you', '你是哪个', '你是什么'];
+          return whoPatterns.some(pattern => message.includes(pattern));
+        }
+
+        async generateResponse(analysis) {
+          let response = '';
+          if (analysis.isCalculation.isMath) {
+            const calculation = analysis.isCalculation;
+            response = this.generateMathResponse(calculation);
+          } else if (analysis.containsName.found) {
+            response = this.generateNameResponse(analysis.containsName);
+          } else if (analysis.isGreeting) {
+            response = this.generateGreetingResponse();
+          } else if (analysis.isWho) {
+            response = this.generateWhoResponse();
+          } else {
+            this.showStatus('searching', '正在全网搜索...');
+            await new Promise(resolve => setTimeout(resolve, this.searchTime));
+            this.updateStatus('organizing', '正在整理答案...');
+            await new Promise(resolve => setTimeout(resolve, 600));
+            response = await this.getSearchAnswer(analysis.originalMessage);
+            this.hideStatus();
+          }
+          this.recordResponse(response);
+          return response;
+        }
+
+        generateMathResponse(calculation) {
+          const responses = [
+            `计算结果是：${calculation.result}`,
+            `我算了一下，${calculation.expression} = ${calculation.result}`,
+            `答案是 ${calculation.result}`,
+            `经过计算，结果是 ${calculation.result}`,
+            `让我算算... 嗯，等于 ${calculation.result}`
+          ];
+          return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        generateNameResponse(nameInfo) {
+          if (nameInfo.type === 'teacher') {
+            return this.generateTeacherResponse(nameInfo);
+          } else {
+            return this.generateStudentResponse(nameInfo);
+          }
+        }
+
+        generateStudentResponse(nameInfo) {
+          const fullName = nameInfo.fullName;
+          const displayName = fullName.replace('（牦牛本人）', '');
+          const descriptions = classmates[fullName];
+          if (!descriptions) return `${displayName}是我们九班的同学，很优秀！`;
+          const selectedCount = Math.floor(Math.random() * 2) + 2;
+          const shuffled = [...descriptions].sort(() => 0.5 - Math.random());
+          const selectedDescs = shuffled.slice(0, selectedCount);
+          let response = `${displayName}同学`;
+          if (selectedDescs.length === 1) {
+            response += selectedDescs[0] + "。";
+          } else {
+            response += selectedDescs.slice(0, -1).join('，') + "，还有" + selectedDescs[selectedDescs.length - 1] + "。";
+          }
+          const comments = [
+            " 在我们九班，这样的同学很多，大家互相学习！",
+            " 这就是九班同学的优秀品质！",
+            " 班级里有这样的同学，氛围特别好！",
+            " 九班正是因为有了大家才如此精彩！",
+            " 每个同学都有自己独特的闪光点！"
+          ];
+          if (Math.random() > 0.3) response += comments[Math.floor(Math.random() * comments.length)];
+          return response;
+        }
+
+        generateTeacherResponse(nameInfo) {
+          const fullName = nameInfo.fullName;
+          const descriptions = teachers[fullName];
+          if (!descriptions) return `${fullName}老师教得很好！`;
+          const randomDesc = descriptions[Math.floor(Math.random() * descriptions.length)];
+          let response = `${fullName}老师${randomDesc}。`;
+          if (Math.random() > 0.4) {
+            const classComments = [
+              " 在老师的教导下，我们班进步很大！",
+              " 老师对我们班特别关心！",
+              " 我们班同学都很喜欢这位老师！",
+              " 老师的教学方法很适合我们班！",
+              " 在九班，老师的课特别受欢迎！"
+            ];
+            response += classComments[Math.floor(Math.random() * classComments.length)];
+          }
+          return response;
+        }
+
+        generateGreetingResponse() {
+          const greetings = [
+            "你好呀！我是牦牛AI，九班专属的智能助手！",
+            "嘿！很高兴见到你，我是专为九班同学设计的牦牛AI！",
+            "欢迎来到牦牛AI！我是你的AI伙伴，随时为你服务！",
+            "你好！牦牛AI在此，有什么需要帮忙的吗？",
+            "哈喽！我是九班特制的牦牛AI，很高兴认识你！",
+            "你好！欢迎使用牦牛AI，我是你的智能助手！",
+            "嗨！牦牛AI为你服务，九班同学的好伙伴！",
+            "你好！我是专属于八年级九班的牦牛AI！"
+          ];
+          return greetings[Math.floor(Math.random() * greetings.length)];
+        }
+
+        generateWhoResponse() {
+          const responses = [
+            "我是牦牛AI，专属于八年级九班的智能助手！",
+            "我是九班人自己的AI，专门为九班同学设计的智能助手！",
+            "你好！我是牦牛AI，八年级九班的专属智能助手！",
+            "我是牦牛AI，专门为九班62位同学服务的智能助手！",
+            "我是你们的牦牛AI朋友，专为九班设计的智能助手！",
+            "我是牦牛AI，九班的专属助手，随时准备为你提供帮助！",
+            "我是牦牛AI，由张洋霆同学创造的九班专属AI！",
+            "我是牦牛AI，专为九班同学打造的智能助手！"
+          ];
+          return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        recordResponse(response) {
+          this.history.push({ response: response, timestamp: Date.now() });
+          if (this.history.length > this.maxHistory) this.history.shift();
+        }
+
+        async getSearchAnswer(question) {
+          try {
+            const cacheKey = question.toLowerCase();
+            if (this.searchCache[cacheKey]) return this.searchCache[cacheKey];
+            let searchResult = '';
+            const searchEngines = [this.searchGoogle, this.searchBaidu, this.searchBing, this.searchDuckDuckGo, this.searchSogou];
+            const searchPromises = [];
+            for (let i = 0; i < Math.min(3, searchEngines.length); i++) {
+              searchPromises.push(searchEngines[i](question).catch(e => ''));
+            }
+            const results = await Promise.all(searchPromises);
+            for (const result of results) {
+              if (result && result.length > searchResult.length) searchResult = result;
+            }
+            if (!searchResult || searchResult.length < 30) searchResult = await this.searchBackupAPI(question);
+            if (!searchResult || searchResult.length < 30) return this.getSmartAnswer(question);
+            const organizedAnswer = this.formatAsPoints(searchResult, question);
+            this.searchCache[cacheKey] = organizedAnswer;
+            if (Object.keys(this.searchCache).length > 50) delete this.searchCache[Object.keys(this.searchCache)[0]];
+            return organizedAnswer;
+          } catch (error) {
+            return this.getSmartAnswer(question);
+          }
+        }
+
+        async searchGoogle(question) {
+          try {
+            const proxyUrl = 'https://api.allorigins.win/get?url=';
+            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(question)}&hl=zh-CN`;
+            const response = await fetch(proxyUrl + encodeURIComponent(searchUrl), { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0' } });
+            if (response.ok) {
+              const data = await response.json();
+              const html = data.contents;
+              const resultRegex = /<div class="[^"]*?VwiC3b[^"]*"[^>]*>([^<]+)<\/div>/g;
+              const results = [];
+              let match;
+              while ((match = resultRegex.exec(html)) !== null && results.length < 3) {
+                const content = match[1].replace(/<[^>]+>/g, ' ').trim();
+                if (content.length > 30) results.push(content);
+              }
+              if (results.length > 0) return results.join(' ');
+            }
+            return '';
+          } catch (error) { return ''; }
+        }
+
+        async searchBaidu(question) {
+          try {
+            const proxyUrl = 'https://api.allorigins.win/get?url=';
+            const searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(question)}&ie=utf-8`;
+            const response = await fetch(proxyUrl + encodeURIComponent(searchUrl), { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0' } });
+            if (response.ok) {
+              const data = await response.json();
+              const html = data.contents;
+              const resultRegex = /<div class="result[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
+              const results = [];
+              let match;
+              while ((match = resultRegex.exec(html)) !== null && results.length < 3) {
+                const content = match[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                if (content.length > 50 && !content.includes('广告')) results.push(content);
+              }
+              if (results.length > 0) return results.join(' ');
+            }
+            return '';
+          } catch (error) { return ''; }
+        }
+
+        async searchBing(question) {
+          try {
+            const response = await fetch(`https://www.bing.com/search?q=${encodeURIComponent(question)}&cc=CN`, { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0' }, mode: 'no-cors' });
+            if (response.ok) {
+              const text = await response.text();
+              const bodyText = text.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ').replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+              const keywords = question.split(' ');
+              let relevantText = '';
+              for (const keyword of keywords) {
+                if (keyword.length > 2) {
+                  const regex = new RegExp(`.{0,100}${keyword}.{0,100}`, 'gi');
+                  const matches = bodyText.match(regex);
+                  if (matches) relevantText += matches.slice(0, 2).join(' ') + ' ';
+                }
+              }
+              if (relevantText.length > 50) return relevantText.substring(0, 300);
+            }
+            return '';
+          } catch (error) { return ''; }
+        }
+
+        async searchDuckDuckGo(question) {
+          try {
+            const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(question)}&format=json&no_html=1&skip_disambig=1`, { method: 'GET', headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' } });
+            if (response.ok) {
+              const data = await response.json();
+              if (data.AbstractText) return data.AbstractText;
+              if (data.RelatedTopics && data.RelatedTopics.length > 0) return data.RelatedTopics.slice(0, 2).map(topic => topic.Text || '').filter(text => text).join('。');
+            }
+            return '';
+          } catch (error) { return ''; }
+        }
+
+        async searchSogou(question) {
+          try {
+            const response = await fetch(`https://www.sogou.com/web?query=${encodeURIComponent(question)}`, { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0' }, mode: 'no-cors' });
+            if (response.ok) {
+              const text = await response.text();
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(text, 'text/html');
+              const results = doc.querySelectorAll('.vr-title, .str_info');
+              if (results.length > 0) return Array.from(results).slice(0, 2).map(el => el.textContent).join(' ');
+            }
+            return '';
+          } catch (error) { return ''; }
+        }
+
+        async searchBackupAPI(question) {
+          try {
+            const response = await fetch(`https://v.juhe.cn/weixin/query?pno=1&ps=1&dtype=&key=b8daa4326fd5cc2a9a4c14c5013dd82d&word=${encodeURIComponent(question)}`, { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0' } });
+            if (response.ok) {
+              const data = await response.json();
+              if (data.result && data.result.list && data.result.list.length > 0) {
+                const firstResult = data.result.list[0];
+                return firstResult.title + '。' + (firstResult.content || '');
+              }
+            }
+            return '';
+          } catch (error) { return ''; }
+        }
+
+        formatAsPoints(content, question) {
+          if (!content || content.length < 20) return `关于"${question}"：\n\n根据搜索到的信息：\n${content.substring(0, 200)}...`;
+          content = content.replace(/[\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim();
+          const sentences = content.split(/[。！？；\.!\?;]/).filter(s => s.trim().length > 10 && s.trim().length < 150).map(s => s.trim());
+          if (sentences.length === 0) return `关于"${question}"：\n\n搜索到的信息：\n${content.substring(0, 250)}...`;
+          const questionWords = question.toLowerCase().split(' ');
+          const scoredSentences = sentences.map(sentence => {
+            let score = 0;
+            const lowerSentence = sentence.toLowerCase();
+            for (const word of questionWords) {
+              if (word.length > 2 && lowerSentence.includes(word)) score += 5;
+            }
+            score += Math.min(sentence.length / 50, 2);
+            return { sentence, score };
+          });
+          const topSentences = scoredSentences.sort((a, b) => b.score - a.score).slice(0, 3).filter(item => item.score > 0 || item.sentence.length > 20).map(item => item.sentence);
+          if (topSentences.length === 0) {
+            const relevantSentences = sentences.slice(0, Math.min(3, sentences.length));
+            return `关于"${question}"：\n\n1. ${relevantSentences[0]}\n2. ${relevantSentences[1] || relevantSentences[0]}\n3. ${relevantSentences[2] || '更多信息建议查阅相关资料'}`;
+          }
+          let points = '';
+          topSentences.forEach((sentence, index) => { points += `${index + 1}. ${sentence}\n`; });
+          return `关于"${question}"，搜索整理如下：\n\n${points}\n\n（信息来源于网络搜索）`;
+        }
+
+        getSmartAnswer(question) {
+          const lowerQuestion = question.toLowerCase();
+          const now = new Date();
+          if (lowerQuestion.includes('时间') || lowerQuestion.includes('现在几点')) return `现在时间：${now.toLocaleString('zh-CN')}`;
+          else if (lowerQuestion.includes('日期') || lowerQuestion.includes('今天几号')) return `今天是：${now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}`;
+          else if (lowerQuestion.includes('天气')) return `关于天气信息，建议您查看手机天气应用或访问中国天气网获取实时天气预报。`;
+          else if (lowerQuestion.includes('新闻') || lowerQuestion.includes('热点')) return `获取最新新闻，建议访问人民日报官网、央视新闻客户端或新华社官方网站等权威媒体。`;
+          else if (lowerQuestion.includes('学习') || lowerQuestion.includes('作业')) return `学习建议：认真听讲、及时复习、多问多练。如果有具体的学习问题，可以咨询相关科目的老师。`;
+          else {
+            const answers = [
+              `关于"${question}"，我目前没有搜索到相关信息。作为牦牛AI，我主要擅长回答与九班同学、老师相关的问题，或者简单的计算问题。`,
+              `这个问题我暂时没有找到相关资料。如果您想了解我们九班的同学或老师，或者有数学计算问题，我一定能帮到您！`,
+              `对于这个问题，我还没有学习到相关知识。不过关于我们九班的事情，我可是了如指掌哦！`
+            ];
+            return answers[Math.floor(Math.random() * answers.length)];
+          }
+        }
+
+        showStatus(type, text) {
+          const messageContainer = document.getElementById('messageContainer');
+          const statusDiv = document.createElement('div');
+          statusDiv.className = 'message ai';
+          statusDiv.id = 'statusMessage';
+          if (type === 'searching') {
+            statusDiv.innerHTML = `<div class="message-content"><div class="searching-status" id="statusContent"><div class="searching-dot"></div><div class="searching-dot"></div><div class="searching-dot"></div> ${text}</div></div>`;
+          } else if (type === 'organizing') {
+            statusDiv.innerHTML = `<div class="message-content"><div class="organizing-status" id="statusContent"><div class="organizing-dot"></div><div class="organizing-dot"></div><div class="organizing-dot"></div> ${text}</div></div>`;
+          }
+          messageContainer.appendChild(statusDiv);
+          messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        updateStatus(type, text) {
+          const statusContent = document.getElementById('statusContent');
+          if (!statusContent) return;
+          if (type === 'organizing') {
+            statusContent.className = 'organizing-status';
+            statusContent.innerHTML = `<div class="organizing-dot"></div><div class="organizing-dot"></div><div class="organizing-dot"></div> ${text}`;
+          }
+        }
+
+        hideStatus() {
+          const statusDiv = document.getElementById('statusMessage');
+          if (statusDiv) {
+            statusDiv.style.opacity = '0';
+            statusDiv.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => { if (statusDiv.parentNode) statusDiv.parentNode.removeChild(statusDiv); }, 300);
+          }
+        }
+      }
+
+      const smartAI = new SmartResponseSystem();
+
+      // ---------- 界面特效（保留全部原有函数）----------
+      function create3DParticleField() {
+        const field = document.getElementById('particleField');
+        for (let i = 0; i < 150; i++) {
+          const particle = document.createElement('div');
+          particle.classList.add('particle-3d');
+          particle.style.left = `${Math.random() * 100}%`;
+          particle.style.top = `${Math.random() * 100}%`;
+          field.appendChild(particle);
+        }
+      }
+
+      function createDataStream() {
+        const stream = document.getElementById('dataStream');
+        for (let i = 0; i < 20; i++) {
+          const line = document.createElement('div');
+          line.classList.add('stream-line');
+          line.style.top = `${Math.random() * 100}%`;
+          stream.appendChild(line);
+        }
+      }
+
+      function createCoreParticles() {
+        const core = document.getElementById('coreRotation');
+        for (let i = 0; i < 12; i++) {
+          const particle = document.createElement('div');
+          particle.classList.add('core-particle');
+          const angle = (i * 360 / 12) * (Math.PI / 180);
+          const x = 120 * Math.cos(angle);
+          const y = 120 * Math.sin(angle);
+          particle.style.left = `calc(50% + ${x}px)`;
+          particle.style.top = `calc(50% + ${y}px)`;
+          core.appendChild(particle);
+        }
+      }
+
+      function createClassMatrix() {
+        const matrix = document.getElementById('matrixContent');
+        const teacherList = Object.entries(teachers);
+        for (let n = 0; n < 2; n++) {
+          teacherList.forEach(([name, info]) => {
+            const item = document.createElement('div');
+            item.className = 'matrix-item';
+            item.textContent = `${name}: ${info[0]}`;
+            matrix.appendChild(item);
+          });
+        }
+      }
+
+      function createExplosionParticles() {
+        const explosion = document.getElementById('particleExplosion');
+        for (let i = 0; i < 50; i++) {
+          const particle = document.createElement('div');
+          particle.classList.add('explosion-particle');
+          const angle = Math.random() * Math.PI * 2;
+          const distance = 200 + Math.random() * 100;
+          const tx = Math.cos(angle) * distance;
+          const ty = Math.sin(angle) * distance;
+          particle.style.setProperty('--tx', `${tx}px`);
+          particle.style.setProperty('--ty', `${ty}px`);
+          explosion.appendChild(particle);
+        }
+      }
+
+      // ---------- 消息显示（保留原有逻辑，并扩展图片消息）----------
+      function addMessage(sender, content, isHtml = false) {
+        const messageContainer = document.getElementById('messageContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        if (isHtml) {
+          messageDiv.innerHTML = content;
+        } else {
+          if (sender === 'ai') {
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            setTimeout(() => {
+              const text = messageDiv.querySelector('.message-content');
+              if (text) {
+                const originalText = text.textContent;
+                text.innerHTML = '';
+                const typingContainer = document.createElement('span');
+                typingContainer.className = 'typing-container';
+                text.appendChild(typingContainer);
+                let i = 0;
+                const typeChar = () => {
+                  if (i < originalText.length) {
+                    typingContainer.innerHTML = originalText.substring(0, i + 1) + '<span class="typing-cursor"></span>';
+                    i++;
+                    setTimeout(typeChar, 20 + Math.random() * 10);
+                  }
+                };
+                typeChar();
+              }
+            }, 100);
+          } else {
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+          }
+        }
+        messageContainer.appendChild(messageDiv);
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+        return messageDiv;
+      }
+
+      function showThinking() {
+        const messageContainer = document.getElementById('messageContainer');
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.className = 'message ai';
+        thinkingDiv.id = 'thinkingMessage';
+        thinkingDiv.innerHTML = `<div class="message-content"><div class="thinking-animation"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div></div>`;
+        messageContainer.appendChild(thinkingDiv);
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+
+      function hideThinking() {
+        const thinkingDiv = document.getElementById('thinkingMessage');
+        if (thinkingDiv) thinkingDiv.remove();
+      }
+
+      // ---------- 图片生成与展示（新功能）----------
+      function generateImageUrl(prompt) {
+        return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true`;
+      }
+
+      function openImagePreview(imgSrc) {
+        const overlay = document.createElement('div');
+        overlay.className = 'image-preview-overlay';
+        overlay.innerHTML = `<img src="${imgSrc}" alt="预览图片" />`;
+        overlay.addEventListener('click', () => overlay.remove());
+        document.body.appendChild(overlay);
+      }
+
+      async function saveImage(imgSrc, prompt) {
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.src = imgSrc;
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+          });
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `牦牛AI_${prompt.substring(0, 20)}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 'image/png');
+        } catch (e) {
+          alert('保存失败，请右键图片另存为。');
+        }
+      }
+
+      async function displayGeneratedImage(prompt) {
+        const container = document.getElementById('messageContainer');
+        const imageDiv = document.createElement('div');
+        imageDiv.className = 'message ai image-message';
+        imageDiv.innerHTML = `
+          <div><strong>🎨 正在生成图片…</strong></div>
+          <div class="image-loading" style="display:flex; align-items:center; gap:10px; padding:10px 0;">
+            <div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>
+            <span>AI 正在创作“${prompt}”</span>
+          </div>
+        `;
+        container.appendChild(imageDiv);
+        container.scrollTop = container.scrollHeight;
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = generateImageUrl(prompt);
+        img.alt = prompt;
+
+        img.onload = () => {
+          imageDiv.innerHTML = `
+            <div><strong>🖼️ 生成结果：</strong> ${prompt}</div>
+            <img src="${img.src}" alt="${prompt}" class="generated-image" style="max-width:100%; border-radius:16px; margin-top:10px; cursor:pointer;" />
+            <div class="image-actions">
+              <button class="image-btn preview-btn">🔍 放大预览</button>
+              <button class="image-btn save-btn">💾 保存到相册</button>
+            </div>
+            <div class="attribution">✨ 由牦牛AI生成</div>
+          `;
+          imageDiv.querySelector('.generated-image').addEventListener('click', () => openImagePreview(img.src));
+          imageDiv.querySelector('.preview-btn').addEventListener('click', () => openImagePreview(img.src));
+          imageDiv.querySelector('.save-btn').addEventListener('click', () => saveImage(img.src, prompt));
+          container.scrollTop = container.scrollHeight;
+        };
+
+        img.onerror = () => {
+          imageDiv.innerHTML = `
+            <div><strong>⚠️ 图片生成失败</strong></div>
+            <div>描述：${prompt}</div>
+            <div style="color:#ffb085;">请稍后重试，或尝试更简洁的描述词。</div>
+          `;
+          container.scrollTop = container.scrollHeight;
+        };
+      }
+
+      // ---------- 发送消息（整合图片生成）----------
+      async function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        addMessage('user', message);
+        input.value = '';
+
+        const analysis = smartAI.analyze(message);
+
+        // 图片生成分支
+        if (analysis.isImageGeneration.isImage) {
+          showThinking();
+          await new Promise(resolve => setTimeout(resolve, 600));
+          hideThinking();
+          displayGeneratedImage(analysis.isImageGeneration.prompt);
+          return;
+        }
+
+        // 普通对话
+        showThinking();
+        const thinkTime = 800 + Math.random() * 1200;
+        await new Promise(resolve => setTimeout(resolve, thinkTime));
+        hideThinking();
+
+        const response = await smartAI.generateResponse(analysis);
+        addMessage('ai', response);
+      }
+
+      function showShutdown() {
+        if (!confirm('确定要退出牦牛AI系统吗？')) return;
+        const shutdown = document.getElementById('shutdown');
+        shutdown.style.display = 'flex';
+        createExplosionParticles();
+        setTimeout(() => {
+          alert('感谢使用牦牛AI！期待下次再见，九班同学！');
+          window.close();
+        }, 2000);
+      }
+
+      // ---------- 启动 ----------
+      document.addEventListener('DOMContentLoaded', function() {
+        create3DParticleField();
+        createDataStream();
+        createCoreParticles();
+        createClassMatrix();
+
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+        document.getElementById('exitButton').addEventListener('click', showShutdown);
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') sendMessage();
+        });
+
+        setTimeout(() => {
+          const startup = document.getElementById('startup');
+          const app = document.getElementById('app');
+          const progressBar = document.querySelector('.quantum-progress');
+          progressBar.style.width = '100%';
+          setTimeout(() => {
+            startup.style.opacity = '0';
+            startup.style.transition = 'opacity 0.7s ease';
+            setTimeout(() => {
+              startup.style.display = 'none';
+              app.style.display = 'flex';
+              setTimeout(() => {
+                const welcomeMsg = "你好！我是牦牛AI，专属于八年级九班同学的智能助手！我们班有62位同学，在王贵强老师带领下，学习氛围特别浓厚。有什么问题尽管问我！🐂";
+                addMessage('ai', welcomeMsg);
+                function adjustLayout() {
+                  const messages = document.getElementById('messageContainer');
+                  const header = document.querySelector('.app-header');
+                  const footer = document.getElementById('footerSupport');
+                  const input = document.querySelector('.input-container');
+                  const exit = document.querySelector('.exit-section');
+                  if (messages && header && footer && input && exit) {
+                    const windowHeight = window.innerHeight;
+                    const headerHeight = header.offsetHeight;
+                    const footerHeight = footer.offsetHeight;
+                    const inputHeight = input.offsetHeight;
+                    const exitHeight = exit.offsetHeight;
+                    const padding = 40;
+                    messages.style.maxHeight = (windowHeight - headerHeight - footerHeight - inputHeight - exitHeight - padding) + 'px';
+                  }
+                }
+                window.addEventListener('resize', adjustLayout);
+                adjustLayout();
+              }, 100);
+            }, 700);
+          }, 800);
+        }, 1500);
+      });
+    })();
+  </script>
+</body>
+</html>
