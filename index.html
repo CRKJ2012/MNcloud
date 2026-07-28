@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.5, minimum-scale=0.8">
+  <title>牦牛云 · 停服公告</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1410;
+      background-image: radial-gradient(circle at 30% 10%, rgba(180, 130, 70, 0.08) 0%, transparent 55%),
+                        radial-gradient(circle at 80% 90%, rgba(140, 90, 40, 0.06) 0%, transparent 60%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1.5rem;
+      font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Serif SC', '华文楷体', '楷体', KaiTi, 'Segoe UI', system-ui, serif;
+      line-height: 1.7;
+      color: #d4c8b8;
+    }
+
+    /* 主卡片 —— 暗金质感，呼应品牌基调 */
+    .announcement-card {
+      max-width: 720px;
+      width: 100%;
+      background: rgba(20, 15, 10, 0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: linear-gradient(165deg, rgba(30, 22, 15, 0.9) 0%, rgba(15, 10, 6, 0.95) 100%);
+      border: 1px solid rgba(180, 140, 90, 0.25);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 215, 140, 0.15);
+      border-radius: 2.5rem;
+      padding: 2.8rem 2.2rem;
+      color: #e1d6c8;
+      transition: all 0.2s ease;
+    }
+
+    /* 牦牛图标与标题区域 */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 2.2rem;
+    }
+
+    .yak-icon {
+      font-size: 3.2rem;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+      letter-spacing: 0.1em;
+      color: #c9a87c;
+      margin-bottom: 0.25rem;
+    }
+
+    .announcement-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #ecdbba;
+      letter-spacing: 0.08em;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      border-bottom: 1px solid rgba(200, 160, 100, 0.3);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+      margin-top: 0.2rem;
+    }
+
+    .sub-message {
+      font-size: 1.1rem;
+      color: #b6a085;
+      margin-top: 0.8rem;
+      font-style: italic;
+      letter-spacing: 0.04em;
+      background: rgba(0,0,0,0.25);
+      display: inline-block;
+      padding: 0.3rem 1.8rem;
+      border-radius: 2rem;
+    }
+
+    /* 正文排版 */
+    .content-section {
+      margin: 2rem 0 1.8rem;
+    }
+
+    .greeting {
+      font-size: 1.15rem;
+      margin-bottom: 1.8rem;
+      color: #cfbea2;
+    }
+
+    .description-block {
+      background: rgba(0, 0, 0, 0.28);
+      border-radius: 1.8rem;
+      padding: 1.6rem 1.8rem;
+      margin: 1.8rem 0;
+      border: 1px solid rgba(170, 130, 70, 0.25);
+      font-size: 1rem;
+      color: #cbb595;
+      box-shadow: inset 0 0 18px rgba(0,0,0,0.5);
+    }
+
+    .description-block p {
+      margin-bottom: 0.75rem;
+    }
+
+    .timeline-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin: 2rem 0 1.2rem;
+      color: #dfc59c;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .timeline-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.8rem;
+      background: rgba(10, 7, 4, 0.5);
+      border-radius: 1.2rem;
+      overflow: hidden;
+      border: 1px solid #4f3e2a;
+    }
+
+    .timeline-table th {
+      background: #2f2418;
+      color: #e7cfaa;
+      font-weight: 600;
+      padding: 0.9rem 1rem;
+      font-size: 0.95rem;
+      text-align: left;
+      border-bottom: 1px solid #5e4a32;
+    }
+
+    .timeline-table td {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(120, 90, 50, 0.25);
+      color: #cfbc9c;
+      font-size: 0.95rem;
+    }
+
+    .timeline-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .highlight-date {
+      font-weight: 700;
+      color: #e6b87a;
+    }
+
+    .important-note {
+      background: rgba(190, 120, 50, 0.12);
+      border-left: 4px solid #c9944b;
+      padding: 1rem 1.5rem;
+      border-radius: 0.8rem;
+      margin: 1.5rem 0;
+      font-weight: 500;
+      color: #ebd2af;
+    }
+
+    .privacy-statement {
+      font-size: 0.98rem;
+      color: #b7a081;
+      margin: 1.6rem 0 2rem;
+      font-style: italic;
+    }
+
+    .closing-message {
+      text-align: center;
+      margin: 2.2rem 0 2rem;
+      font-size: 1.1rem;
+      color: #cfb692;
+      line-height: 2;
+    }
+
+    .closing-message em {
+      font-style: normal;
+      color: #e7ca99;
+      font-weight: 500;
+    }
+
+    /* 底部版权区域：灰色楷体小字，居中 */
+    .footer-copyright {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(150, 120, 70, 0.3);
+      font-family: '华文楷体', '楷体', KaiTi, 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif;
+      font-size: 0.85rem;
+      color: #8b8b8b;
+      letter-spacing: 0.04em;
+      font-style: normal;
+      opacity: 0.8;
+    }
+
+    .footer-copyright span {
+      color: #a09a90;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 500px) {
+      .announcement-card {
+        padding: 1.8rem 1.2rem;
+        border-radius: 2rem;
+      }
+      .announcement-title {
+        font-size: 1.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="announcement-card">
+    
+    <!-- 头部标识 -->
+    <div class="brand-header">
+      <div class="yak-icon">🐂</div>
+      <h1 class="announcement-title">牦牛云 · 停服公告</h1>
+      <div class="sub-message">雪原之上的数字行宫，将于2026年8月28日正式熄灯。</div>
+    </div>
+
+    <div class="content-section">
+      <p class="greeting">尊敬的用户：</p>
+      <p>感谢你曾推开这扇门。</p>
+      <div class="description-block">
+        <p>「牦牛云」诞生于一个简单的念头——在这个喧嚣的互联网时代，总该有一块干净、体面、不被打扰的个人领地。暗金界面，免费10G空间，不追风口，不造概念。我们只想做一个靠得住的云端角落，存放你的灵感、秘密，与那些不想惊动任何风声的私藏。</p>
+        <p>但高原也有风雪，行宫终有归期。</p>
+        <p>因工作室经营难以为继，我们遗憾地通知你：<strong style="color:#e6b87a;">牦牛云将于2026年8月28日0时起正式停止服务</strong>，服务器届时关闭，所有数据将无法访问。</p>
+      </div>
+
+      <!-- 时间线表格 -->
+      <div class="timeline-title">⏳ 停服时间线</div>
+      <table class="timeline-table">
+        <thead>
+          <tr><th>时间节点</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="highlight-date">即日起</td>
+            <td>停止新用户注册</td>
+          </tr>
+          <tr>
+            <td class="highlight-date">2026年8月14日前</td>
+            <td>请完成数据导出与备份</td>
+          </tr>
+          <tr>
+            <td class="highlight-date">2026年8月28日0时</td>
+            <td>服务器正式关闭</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="important-note">
+        ⚠️ 请务必提前备份：你的文件、笔记、图片、视频——每一个字节都曾被你郑重上传，也值得我们郑重告别。请在 <strong>2026年8月14日前</strong> 登录牦牛云，使用「导出数据」功能将所有内容完整备份至本地。逾期将无法再取回。
+      </div>
+
+      <div class="privacy-statement">
+        🔒 关于隐私：我们承诺，服务器关闭后，所有用户数据将被彻底清除，不留存、不转交、不泄露。你曾托付的秘密，随高原的风一同散去。
+      </div>
+
+      <div class="closing-message">
+        <p>注册即入场，登录即抵达。</p>
+        <p>这句话我们一直放在首页，今天依然成立。只不过这一次，<em>抵达的是一段旅途的终点。</em></p>
+        <p>感谢你选择过牦牛云。在某个深色模式的夜晚，你曾推开一扇门，而那扇门背后，曾是属于你一个人的高地。</p>
+        <p style="margin-top:1.4rem;"><strong>珍重。</strong></p>
+        <p style="font-size:1rem; margin-top:0.5rem; color:#c9aa7a;">牦牛工作室 团队</p>
+        <p style="font-size:0.9rem; color:#a28d6f;">2026年7月28日</p>
+      </div>
+    </div>
+
+    <!-- 底部版权：灰色楷体小字，居中 -->
+    <div class="footer-copyright">
+      灿然科技©2026 版权所有 <span>|</span> 牦牛工作室 MaoniuStudio
+    </div>
+
+  </div>
+</body>
+</html>
