@@ -34,12 +34,10 @@
     --warn-soft: #fff7e6;
     --err: #ff4d4f;
     --err-soft: #fff1f0;
-    --r-xs: 8px;
     --r-sm: 10px;
     --r-md: 14px;
     --r-lg: 18px;
     --r-xl: 24px;
-    --shadow-xs: 0 1px 2px rgba(15,20,40,0.04);
     --shadow-sm: 0 1px 2px rgba(15,20,40,0.04), 0 2px 6px -2px rgba(15,20,40,0.06);
     --shadow-md: 0 2px 4px rgba(15,20,40,0.03), 0 8px 20px -8px rgba(15,20,40,0.10);
     --shadow-lg: 0 4px 8px rgba(15,20,40,0.04), 0 20px 40px -16px rgba(15,20,40,0.16);
@@ -71,7 +69,7 @@
     --err-soft: rgba(255,77,79,0.14);
   }
 
-  html, body { height: 100%; }
+  html, body { height: 100%; width: 100%; }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -82,24 +80,19 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow: hidden;
+    position: fixed;
+    inset: 0;
     letter-spacing: -0.005em;
-    transition: background .3s var(--ease), color .3s var(--ease);
   }
 
+  /* ===== 应用容器：铺满整个视口 ===== */
   .app {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    height: 100dvh;
-    width: 100vw;
-    max-width: 900px;
-    margin: 0 auto;
+    width: 100%;
+    height: 100%;
     background: var(--surface);
-    box-shadow: 0 0 0 1px var(--line);
     overflow: hidden;
-  }
-  @supports not (height: 100dvh) {
-    .app { height: 100vh; }
   }
 
   /* ===== 顶栏 ===== */
@@ -107,7 +100,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 18px;
+    padding: 12px 20px;
     padding-top: calc(12px + env(safe-area-inset-top));
     border-bottom: 1px solid var(--line);
     background: var(--bg-elev);
@@ -177,23 +170,27 @@
   .icon-btn:active { transform: scale(.92); }
   .icon-btn.hide { display: none; }
 
-  /* ===== 主区域 ===== */
+  /* ===== 主区域：铺满、可滚动 ===== */
   .main {
-    flex: 1;
+    flex: 1 1 0;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     background: var(--surface);
     position: relative;
+    width: 100%;
   }
   .main::-webkit-scrollbar { width: 8px; }
   .main::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; border: 2px solid var(--surface); }
+  .main::-webkit-scrollbar-thumb:hover { background: var(--text-4); }
 
-  /* ===== 连接页 ===== */
+  /* ===== 连接页：居中内容，卡片铺开 ===== */
   .connect-page {
-    max-width: 520px;
+    width: 100%;
+    max-width: 560px;
     margin: 0 auto;
-    padding: 32px 20px 40px;
+    padding: 40px 24px 48px;
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -243,7 +240,6 @@
     border-radius: var(--r-lg);
     padding: 18px;
     box-shadow: var(--shadow-sm);
-    transition: .2s var(--ease);
   }
 
   .card-label {
@@ -269,7 +265,6 @@
     flex-shrink: 0;
   }
 
-  /* 我的码 */
   .my-code {
     background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(122,92,255,0.06) 100%);
     border: 1px solid var(--accent-line);
@@ -313,7 +308,6 @@
     gap: 8px;
   }
 
-  /* 扫码大按钮 */
   .scan-btn {
     width: 100%;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
@@ -361,7 +355,6 @@
     margin-top: 1px;
   }
 
-  /* 输入码 */
   .field { display: flex; gap: 8px; }
   .field input {
     flex: 1;
@@ -391,9 +384,7 @@
     background: var(--surface);
     box-shadow: 0 0 0 4px var(--accent-soft);
   }
-  .field .btn {
-    padding: 12px 20px;
-  }
+  .field .btn { padding: 12px 20px; }
 
   .btn {
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
@@ -402,7 +393,6 @@
     border-radius: var(--r-md);
     font-size: 14px;
     font-weight: 700;
-    letter-spacing: .01em;
     cursor: pointer;
     transition: .2s var(--ease);
     box-shadow: var(--shadow-accent), inset 0 1px 0 rgba(255,255,255,.3);
@@ -441,7 +431,6 @@
   .btn.ghost:hover { background: var(--surface-3); border-color: var(--line-strong); }
   .btn.block { width: 100%; padding: 12px; }
 
-  /* 最近连接 */
   .history-list { display: flex; flex-direction: column; gap: 6px; }
   .history-item {
     display: flex;
@@ -474,15 +463,19 @@
   }
   .history-item .del:hover { background: var(--err-soft); color: var(--err); }
 
-  /* ===== 聊天 ===== */
+  /* ===== 聊天区：全宽铺开，内容居中 ===== */
+  .chat-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
   .chat {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    padding: 20px 20px 12px;
-    max-width: 900px;
-    margin: 0 auto;
+    padding: 20px 24px 12px;
     width: 100%;
+    max-width: 820px;
   }
 
   .sys {
@@ -568,13 +561,11 @@
     font-size: 13px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: .15s var(--ease);
     box-shadow: var(--shadow-sm);
     font-family: inherit;
   }
   .bubble-actions button:hover { background: var(--surface-2); color: var(--accent); border-color: var(--accent-line); }
 
-  /* 文件卡片 */
   .file-card {
     width: 100%;
     min-width: 280px;
@@ -690,21 +681,19 @@
     color: var(--err);
   }
 
-  /* ===== 底栏 ===== */
+  /* ===== 底栏：全宽，内容居中 ===== */
   .composer {
     flex-shrink: 0;
-    padding: 12px 20px;
+    padding: 12px 24px;
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
     background: var(--bg-elev);
     border-top: 1px solid var(--line);
     display: flex;
-    align-items: flex-end;
-    gap: 10px;
+    justify-content: center;
     transition: background .3s var(--ease);
   }
   .composer-inner {
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 820px;
     width: 100%;
     display: flex;
     align-items: flex-end;
@@ -891,7 +880,6 @@
   }
   .modal-foot .btn-action { flex: 1; padding: 11px 16px; font-size: 13.5px; }
 
-  /* 二维码 */
   .qr-wrap {
     background: #fff;
     border-radius: var(--r-md);
@@ -917,7 +905,6 @@
     line-height: 1.5;
   }
 
-  /* 扫码 */
   #qrReader { width: 100%; min-height: 300px; background: #000; }
   #qrReader video { width: 100% !important; height: auto !important; display: block; }
   #qrReader img { display: none; }
@@ -1019,7 +1006,6 @@
     <button class="icon-btn" id="btnTheme" title="切换主题" onclick="toggleTheme()">🌙</button>
     <button class="icon-btn hide" id="btnMenu" title="菜单" onclick="toggleMenu()">⋯</button>
 
-    <!-- 菜单 -->
     <div class="menu" id="menu">
       <button class="menu-item" onclick="pasteFromClipboard()" id="menuPaste">📋 粘贴发送</button>
       <button class="menu-item" onclick="downloadAll()" id="menuDownload">⬇ 全部下载</button>
@@ -1040,7 +1026,6 @@
         <p>手机 ↔ 电脑 · 点对点直传 · 无需服务器<br>文件不经过任何第三方</p>
       </div>
 
-      <!-- 我的连接码 -->
       <div class="card">
         <div class="card-label"><span class="idx">1</span>我的连接码</div>
         <div class="my-code" onclick="copyCode()">
@@ -1053,7 +1038,6 @@
         </div>
       </div>
 
-      <!-- 扫码连接 -->
       <div class="card">
         <div class="card-label"><span class="idx">2</span>扫码连接</div>
         <button class="scan-btn" onclick="openScanner()">
@@ -1065,7 +1049,6 @@
         </button>
       </div>
 
-      <!-- 输入码 -->
       <div class="card">
         <div class="card-label"><span class="idx">3</span>或输入对方的连接码</div>
         <div class="field">
@@ -1074,7 +1057,6 @@
         </div>
       </div>
 
-      <!-- 最近连接 -->
       <div class="card hide" id="historySection">
         <div class="card-label">🕐 最近连接</div>
         <div class="history-list" id="historyList"></div>
@@ -1082,7 +1064,9 @@
     </section>
 
     <!-- 聊天页 -->
-    <div class="chat hide" id="chatView"></div>
+    <div class="chat-wrap hide" id="chatWrap">
+      <div class="chat" id="chatView"></div>
+    </div>
 
   </main>
 
@@ -1106,7 +1090,6 @@
 
 </div>
 
-<!-- 隐藏的文件输入 -->
 <input type="file" id="fileInput" multiple style="display:none">
 
 <!-- 预览弹窗 -->
@@ -1132,7 +1115,7 @@
       <div class="qr-wrap">
         <div id="qrHolder"></div>
         <div class="num" id="qrCodeText">------</div>
-        <div class="tip">扫码打开此页面并自动连接</div>
+        <div class="tip">扫码打开此页面并自动填入连接码</div>
       </div>
     </div>
   </div>
@@ -1159,14 +1142,13 @@
 
 <script>
 /* =========================================================
-   牦牛文件传输助手 v4
+   牦牛文件传输助手
    ========================================================= */
 
 const CHUNK_SIZE = 16 * 1024;
 const MAX_BUFFER = 1.5 * 1024 * 1024;
 const LS_KEY = 'yak-transfer-history';
 const LS_THEME = 'yak-transfer-theme';
-const RECONNECT_KEY = 'yak-transfer-last-peer';
 
 let peer = null;
 let conn = null;
@@ -1175,8 +1157,6 @@ let isConnected = false;
 let recvFile = null;
 let mediaRecorder = null;
 let audioChunks = [];
-let reconnectTimer = null;
-let lastPeerCode = localStorage.getItem(RECONNECT_KEY) || '';
 
 const sendQueue = [];
 let isSending = false;
@@ -1191,6 +1171,7 @@ const els = {
   peerInput: $('peerInput'),
   btnConnect: $('btnConnect'),
   connectView: $('connectView'),
+  chatWrap: $('chatWrap'),
   chatView: $('chatView'),
   composer: $('composer'),
   msgInput: $('msgInput'),
@@ -1218,8 +1199,7 @@ const els = {
 const previewCache = new Map();
 const receivedFiles = [];
 
-/* ============ 内嵌极简二维码生成器 ============ */
-/* 基于 Kazuhiko Arase 的 qrcode-generator 精简版，仅支持 byte 模式 */
+/* ============ 内嵌二维码生成器 ============ */
 (function(){
   const QRMath = (function(){
     const EXP = new Array(256), LOG = new Array(256);
@@ -1227,7 +1207,7 @@ const receivedFiles = [];
     for (let i = 8; i < 256; i++) EXP[i] = EXP[i-4] ^ EXP[i-5] ^ EXP[i-6] ^ EXP[i-8];
     for (let i = 0; i < 255; i++) LOG[EXP[i]] = i;
     return {
-      glog: n => { if (n < 1) throw new Error('glog(' + n + ')'); return LOG[n]; },
+      glog: n => { if (n < 1) throw new Error('glog'); return LOG[n]; },
       gexp: n => { while (n < 0) n += 255; while (n >= 256) n -= 255; return EXP[n]; }
     };
   })();
@@ -1261,76 +1241,63 @@ const receivedFiles = [];
     }
   };
 
-  const QRRSBlock = (function(){
-    const RS_BLOCK_TABLE = [
-      [1,26,19],[1,26,16],[1,26,13],[1,26,9],
-      [1,44,34],[1,44,28],[1,44,22],[1,44,16],
-      [1,70,55],[1,70,44],[2,35,17],[2,35,13],
-      [1,100,80],[2,50,32],[2,50,24],[4,25,9],
-      [1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],
-      [2,86,68],[4,43,27],[4,43,19],[4,43,15],
-      [2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],
-      [2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],
-      [2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],
-      [2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],
-      [4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],
-      [2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],
-      [4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],
-      [3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],
-      [5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],
-      [5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],
-      [1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],
-      [5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],
-      [3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],
-      [3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],
-      [4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],
-      [2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],
-      [4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],
-      [6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],
-      [8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],
-      [10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],
-      [8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],
-      [3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],
-      [7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],
-      [5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],
-      [13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],
-      [17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],
-      [17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],
-      [13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],
-      [12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],
-      [6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],
-      [17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],
-      [4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],
-      [20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],
-      [19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]
-    ];
-    return {
-      getRSBlocks: function(typeNumber, errorCorrectLevel) {
-        const rsBlock = getRsBlockTable(typeNumber, errorCorrectLevel);
-        if (!rsBlock) throw new Error('bad rs block @ typeNumber:' + typeNumber);
-        const length = rsBlock.length / 3;
-        const list = [];
-        for (let i = 0; i < length; i++) {
-          const count = rsBlock[i*3];
-          const totalCount = rsBlock[i*3+1];
-          const dataCount = rsBlock[i*3+2];
-          for (let j = 0; j < count; j++) list.push({ totalCount, dataCount });
-        }
-        return list;
-      }
-    };
-    function getRsBlockTable(typeNumber, errorCorrectLevel) {
-      let offset;
-      switch (errorCorrectLevel) {
-        case 1: offset = 0; break;
-        case 0: offset = 1; break;
-        case 3: offset = 2; break;
-        case 2: offset = 3; break;
-        default: return undefined;
-      }
-      return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + offset];
+  const RS_BLOCK_TABLE = [
+    [1,26,19],[1,26,16],[1,26,13],[1,26,9],
+    [1,44,34],[1,44,28],[1,44,22],[1,44,16],
+    [1,70,55],[1,70,44],[2,35,17],[2,35,13],
+    [1,100,80],[2,50,32],[2,50,24],[4,25,9],
+    [1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],
+    [2,86,68],[4,43,27],[4,43,19],[4,43,15],
+    [2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],
+    [2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],
+    [2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],
+    [2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],
+    [4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],
+    [2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],
+    [4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],
+    [3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],
+    [5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],
+    [5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],
+    [1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],
+    [5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],
+    [3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],
+    [3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],
+    [4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],
+    [2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],
+    [4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],
+    [6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],
+    [8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],
+    [10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],
+    [8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],
+    [3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],
+    [7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],
+    [5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],
+    [13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],
+    [17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],
+    [17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],
+    [13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],
+    [12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],
+    [6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],
+    [17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],
+    [4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],
+    [20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],
+    [19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]
+  ];
+  function getRSBlocks(typeNumber, ecl) {
+    let offset;
+    switch (ecl) { case 1: offset = 0; break; case 0: offset = 1; break; case 3: offset = 2; break; case 2: offset = 3; break; default: return undefined; }
+    const rsBlock = RS_BLOCK_TABLE[(typeNumber - 1) * 4 + offset];
+    if (!rsBlock) throw new Error('bad rs block');
+    const length = rsBlock.length / 3;
+    const list = [];
+    for (let i = 0; i < length; i++) {
+      const count = rsBlock[i*3];
+      const totalCount = rsBlock[i*3+1];
+      const dataCount = rsBlock[i*3+2];
+      for (let j = 0; j < count; j++) list.push({ totalCount, dataCount });
     }
-  })();
+    return list;
+  }
 
   const QRUtil = {
     PATTERN_POSITION_TABLE: [
@@ -1364,11 +1331,9 @@ const receivedFiles = [];
       while (data !== 0) { digit++; data >>>= 1; }
       return digit;
     },
-    getPatternPosition: function(typeNumber) {
-      return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
-    },
-    getMask: function(maskPattern, i, j) {
-      switch (maskPattern) {
+    getPatternPosition: function(t) { return QRUtil.PATTERN_POSITION_TABLE[t - 1]; },
+    getMask: function(mp, i, j) {
+      switch (mp) {
         case 0: return (i + j) % 2 === 0;
         case 1: return i % 2 === 0;
         case 2: return j % 3 === 0;
@@ -1377,91 +1342,68 @@ const receivedFiles = [];
         case 5: return (i*j) % 2 + (i*j) % 3 === 0;
         case 6: return ((i*j) % 2 + (i*j) % 3) % 2 === 0;
         case 7: return ((i*j) % 3 + (i+j) % 2) % 2 === 0;
-        default: throw new Error('bad maskPattern:' + maskPattern);
+        default: return false;
       }
     },
-    getErrorCorrectPolynomial: function(errorCorrectLength) {
+    getErrorCorrectPolynomial: function(len) {
       let a = new QRPolynomial([1], 0);
-      for (let i = 0; i < errorCorrectLength; i++) {
-        a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0));
-      }
+      for (let i = 0; i < len; i++) a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0));
       return a;
     },
     getLengthInBits: function(mode, type) {
       if (1 <= type && type < 10) {
-        switch (mode) { case 1: case 2: return 8; case 4: return 8; default: throw new Error('mode:' + mode); }
+        switch (mode) { case 1: case 2: return 8; case 4: return 8; default: return 8; }
       } else if (type < 27) {
-        switch (mode) { case 1: return 10; case 2: return 16; case 4: return 10; default: throw new Error('mode:' + mode); }
-      } else if (type < 41) {
-        switch (mode) { case 1: return 14; case 2: return 26; case 4: return 12; default: throw new Error('mode:' + mode); }
-      } else throw new Error('type:' + type);
+        switch (mode) { case 1: return 10; case 2: return 16; case 4: return 10; default: return 10; }
+      } else {
+        switch (mode) { case 1: return 14; case 2: return 26; case 4: return 12; default: return 12; }
+      }
     },
-    getLostPoint: function(qrCode) {
-      const moduleCount = qrCode.getModuleCount();
-      let lostPoint = 0;
-      for (let row = 0; row < moduleCount; row++) {
-        for (let col = 0; col < moduleCount; col++) {
+    getLostPoint: function(qr) {
+      const n = qr.getModuleCount();
+      let lost = 0;
+      for (let row = 0; row < n; row++) {
+        for (let col = 0; col < n; col++) {
           let sameCount = 0;
-          const dark = qrCode.isDark(row, col);
+          const dark = qr.isDark(row, col);
           for (let r = -1; r <= 1; r++) {
-            if (row + r < 0 || moduleCount <= row + r) continue;
+            if (row + r < 0 || n <= row + r) continue;
             for (let c = -1; c <= 1; c++) {
-              if (col + c < 0 || moduleCount <= col + c) continue;
+              if (col + c < 0 || n <= col + c) continue;
               if (r === 0 && c === 0) continue;
-              if (dark === qrCode.isDark(row + r, col + c)) sameCount++;
+              if (dark === qr.isDark(row + r, col + c)) sameCount++;
             }
           }
-          if (sameCount > 5) lostPoint += (3 + sameCount - 5);
+          if (sameCount > 5) lost += (3 + sameCount - 5);
         }
       }
-      for (let row = 0; row < moduleCount - 1; row++) {
-        for (let col = 0; col < moduleCount - 1; col++) {
+      for (let row = 0; row < n - 1; row++) {
+        for (let col = 0; col < n - 1; col++) {
           let count = 0;
-          if (qrCode.isDark(row, col)) count++;
-          if (qrCode.isDark(row + 1, col)) count++;
-          if (qrCode.isDark(row, col + 1)) count++;
-          if (qrCode.isDark(row + 1, col + 1)) count++;
-          if (count === 0 || count === 4) lostPoint += 3;
-        }
-      }
-      for (let row = 0; row < moduleCount; row++) {
-        for (let col = 0; col < moduleCount - 6; col++) {
-          if (qrCode.isDark(row, col) && !qrCode.isDark(row, col+1) && qrCode.isDark(row, col+2) &&
-              qrCode.isDark(row, col+3) && qrCode.isDark(row, col+4) && !qrCode.isDark(row, col+5) &&
-              qrCode.isDark(row, col+6)) lostPoint += 40;
-        }
-      }
-      for (let col = 0; col < moduleCount; col++) {
-        for (let row = 0; row < moduleCount - 6; row++) {
-          if (qrCode.isDark(row, col) && !qrCode.isDark(row+1, col) && qrCode.isDark(row+2, col) &&
-              qrCode.isDark(row+3, col) && qrCode.isDark(row+4, col) && !qrCode.isDark(row+5, col) &&
-              qrCode.isDark(row+6, col)) lostPoint += 40;
+          if (qr.isDark(row, col)) count++;
+          if (qr.isDark(row + 1, col)) count++;
+          if (qr.isDark(row, col + 1)) count++;
+          if (qr.isDark(row + 1, col + 1)) count++;
+          if (count === 0 || count === 4) lost += 3;
         }
       }
       let darkCount = 0;
-      for (let col = 0; col < moduleCount; col++) {
-        for (let row = 0; row < moduleCount; row++) {
-          if (qrCode.isDark(row, col)) darkCount++;
-        }
-      }
-      const ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
-      lostPoint += ratio * 10;
-      return lostPoint;
+      for (let col = 0; col < n; col++) for (let row = 0; row < n; row++) if (qr.isDark(row, col)) darkCount++;
+      const ratio = Math.abs(100 * darkCount / n / n - 50) / 5;
+      lost += ratio * 10;
+      return lost;
     }
   };
 
   const QRMode = { MODE_8BIT_BYTE: 4 };
   const QRErrorCorrectLevel = { L: 1, M: 0, Q: 3, H: 2 };
-  const QRMaskPattern = { PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7 };
 
   const QR8bitByte = function(data) {
     this.mode = QRMode.MODE_8BIT_BYTE;
-    this.data = data;
     this.parsedData = [];
     const encoder = new TextEncoder();
     const bytes = encoder.encode(data);
     for (let i = 0; i < bytes.length; i++) this.parsedData.push(bytes[i]);
-    this.parsedData = this.parsedData.filter(b => b !== undefined);
   };
   QR8bitByte.prototype = {
     getLength: function() { return this.parsedData.length; },
@@ -1485,32 +1427,23 @@ const receivedFiles = [];
     }
   };
 
-  const QRCodeModel = function(typeNumber, errorCorrectLevel) {
+  const QRCodeModel = function(typeNumber, ecl) {
     this.typeNumber = typeNumber;
-    this.errorCorrectLevel = errorCorrectLevel;
+    this.errorCorrectLevel = ecl;
     this.modules = null;
     this.moduleCount = 0;
     this.dataCache = null;
     this.dataList = [];
   };
   QRCodeModel.prototype = {
-    addData: function(data) {
-      const newData = new QR8bitByte(data);
-      this.dataList.push(newData);
-      this.dataCache = null;
-    },
-    isDark: function(row, col) {
-      if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) throw new Error(row + ',' + col);
-      return this.modules[row][col];
-    },
+    addData: function(data) { this.dataList.push(new QR8bitByte(data)); this.dataCache = null; },
+    isDark: function(row, col) { return this.modules[row][col]; },
     getModuleCount: function() { return this.moduleCount; },
     make: function() { this.makeImpl(false, this.getBestMaskPattern()); },
     makeImpl: function(test, maskPattern) {
       this.moduleCount = this.typeNumber * 4 + 17;
       this.modules = new Array(this.moduleCount);
-      for (let row = 0; row < this.moduleCount; row++) {
-        this.modules[row] = new Array(this.moduleCount).fill(null);
-      }
+      for (let row = 0; row < this.moduleCount; row++) this.modules[row] = new Array(this.moduleCount).fill(null);
       this.setupPositionProbePattern(0, 0);
       this.setupPositionProbePattern(this.moduleCount - 7, 0);
       this.setupPositionProbePattern(0, this.moduleCount - 7);
@@ -1537,11 +1470,11 @@ const receivedFiles = [];
       }
     },
     getBestMaskPattern: function() {
-      let minLostPoint = 0, pattern = 0;
+      let min = 0, pattern = 0;
       for (let i = 0; i < 8; i++) {
         this.makeImpl(true, i);
-        const lostPoint = QRUtil.getLostPoint(this);
-        if (i === 0 || minLostPoint > lostPoint) { minLostPoint = lostPoint; pattern = i; }
+        const lost = QRUtil.getLostPoint(this);
+        if (i === 0 || min > lost) { min = lost; pattern = i; }
       }
       return pattern;
     },
@@ -1610,8 +1543,7 @@ const receivedFiles = [];
             if (this.modules[row][col - c] === null) {
               let dark = false;
               if (byteIndex < data.length) dark = (((data[byteIndex] >>> bitIndex) & 1) === 1);
-              const mask = QRUtil.getMask(maskPattern, row, col - c);
-              if (mask) dark = !dark;
+              if (QRUtil.getMask(maskPattern, row, col - c)) dark = !dark;
               this.modules[row][col - c] = dark;
               bitIndex--;
               if (bitIndex === -1) { byteIndex++; bitIndex = 7; }
@@ -1623,8 +1555,8 @@ const receivedFiles = [];
       }
     }
   };
-  QRCodeModel.createData = function(typeNumber, errorCorrectLevel, dataList) {
-    const rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+  QRCodeModel.createData = function(typeNumber, ecl, dataList) {
+    const rsBlocks = getRSBlocks(typeNumber, ecl);
     const buffer = new QRBitBuffer();
     for (let i = 0; i < dataList.length; i++) {
       const data = dataList[i];
@@ -1634,9 +1566,7 @@ const receivedFiles = [];
     }
     let totalDataCount = 0;
     for (let i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
-    if (buffer.getLengthInBits() > totalDataCount * 8) {
-      throw new Error('code length overflow. (' + buffer.getLengthInBits() + '>' + totalDataCount * 8 + ')');
-    }
+    if (buffer.getLengthInBits() > totalDataCount * 8) throw new Error('overflow');
     if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) buffer.put(0, 4);
     while (buffer.getLengthInBits() % 8 !== 0) buffer.putBit(false);
     while (true) {
@@ -1673,47 +1603,37 @@ const receivedFiles = [];
     for (let i = 0; i < rsBlocks.length; i++) totalCodeCount += rsBlocks[i].totalCount;
     const data = new Array(totalCodeCount);
     let index = 0;
-    for (let i = 0; i < maxDcCount; i++) {
-      for (let r = 0; r < rsBlocks.length; r++) {
-        if (i < dcdata[r].length) data[index++] = dcdata[r][i];
-      }
-    }
-    for (let i = 0; i < maxEcCount; i++) {
-      for (let r = 0; r < rsBlocks.length; r++) {
-        if (i < ecdata[r].length) data[index++] = ecdata[r][i];
-      }
-    }
+    for (let i = 0; i < maxDcCount; i++) for (let r = 0; r < rsBlocks.length; r++) if (i < dcdata[r].length) data[index++] = dcdata[r][i];
+    for (let i = 0; i < maxEcCount; i++) for (let r = 0; r < rsBlocks.length; r++) if (i < ecdata[r].length) data[index++] = ecdata[r][i];
     return data;
   };
 
-  // 自动选择版本
-  function getTypeNumber(text, errorCorrectLevel) {
+  function getTypeNumber(text, ecl) {
+    const needed = 4 + 8 + new TextEncoder().encode(text).length * 8;
     for (let t = 1; t <= 40; t++) {
       try {
-        const rsBlocks = QRRSBlock.getRSBlocks(t, errorCorrectLevel);
-        let totalDataCount = 0;
-        for (let i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
-        const needed = 4 + QRUtil.getLengthInBits(QRMode.MODE_8BIT_BYTE, t) + new TextEncoder().encode(text).length * 8;
-        if (needed <= totalDataCount * 8) return t;
+        const rsBlocks = getRSBlocks(t, ecl);
+        let total = 0;
+        for (let i = 0; i < rsBlocks.length; i++) total += rsBlocks[i].dataCount;
+        const lenBits = QRUtil.getLengthInBits(4, t);
+        if (4 + lenBits + new TextEncoder().encode(text).length * 8 <= total * 8) return t;
       } catch (e) {}
     }
     return 40;
   }
 
-  // 暴露全局
   window.YakQR = {
     render: function(text, container, size) {
       size = size || 220;
-      const errorLevel = QRErrorCorrectLevel.M;
-      const typeNumber = getTypeNumber(text, errorLevel);
-      const qr = new QRCodeModel(typeNumber, errorLevel);
+      const ecl = QRErrorCorrectLevel.M;
+      const typeNumber = getTypeNumber(text, ecl);
+      const qr = new QRCodeModel(typeNumber, ecl);
       qr.addData(text);
       qr.make();
       const count = qr.getModuleCount();
-      const cell = Math.floor(size / (count + 4));
+      const cell = Math.max(2, Math.floor(size / (count + 4)));
       const margin = Math.floor((size - cell * count) / 2);
       const actualSize = cell * count + margin * 2;
-
       const canvas = document.createElement('canvas');
       canvas.width = actualSize;
       canvas.height = actualSize;
@@ -1723,9 +1643,7 @@ const receivedFiles = [];
       ctx.fillStyle = '#0f1220';
       for (let r = 0; r < count; r++) {
         for (let c = 0; c < count; c++) {
-          if (qr.isDark(r, c)) {
-            ctx.fillRect(margin + c * cell, margin + r * cell, cell, cell);
-          }
+          if (qr.isDark(r, c)) ctx.fillRect(margin + c * cell, margin + r * cell, cell, cell);
         }
       }
       container.innerHTML = '';
@@ -1826,7 +1744,6 @@ function renderHistory() {
     div.onclick = e => {
       if (e.target.classList.contains('del')) { removeHistory(item.code); return; }
       els.peerInput.value = item.code;
-      connectPeer();
     };
     els.historyList.appendChild(div);
   });
@@ -1858,15 +1775,6 @@ function initPeer() {
     els.myCode.textContent = id;
     els.qrCodeText.textContent = id;
     setStatus('已就绪，等待连接', 'on');
-
-    if (lastPeerCode && lastPeerCode !== id) {
-      setTimeout(() => {
-        if (!isConnected) {
-          els.peerInput.value = lastPeerCode;
-          connectPeer(true);
-        }
-      }, 800);
-    }
   });
 
   peer.on('connection', c => {
@@ -1881,7 +1789,7 @@ function initPeer() {
       setStatus('连接码不存在或对方不在线', 'err');
       els.btnConnect.disabled = false;
       els.btnConnect.textContent = '连接';
-      if (!reconnectTimer) toast('连接失败：对方不在线', 'err');
+      toast('连接失败：对方不在线', 'err');
     } else {
       setStatus('连接异常：' + err.type, 'err');
     }
@@ -1893,13 +1801,13 @@ function initPeer() {
   });
 }
 
-function connectPeer(silent) {
+function connectPeer() {
   const target = els.peerInput.value.trim();
   if (!/^\d{6}$/.test(target)) { toast('请输入 6 位数字连接码', 'err'); return; }
   if (target === myCode) { toast('不能连接自己', 'err'); return; }
   els.btnConnect.disabled = true;
   els.btnConnect.textContent = '连接中';
-  if (!silent) setStatus('正在连接 ' + target + ' …', '');
+  setStatus('正在连接 ' + target + ' …', '');
   const c = peer.connect(target, { reliable: true });
   bindConn(c);
 }
@@ -1914,19 +1822,15 @@ function bindConn(c) {
     switchToChat();
     addSys('已建立点对点连接 🔒');
     addHistory(c.peer);
-    localStorage.setItem(RECONNECT_KEY, c.peer);
-    lastPeerCode = c.peer;
-    if (!reconnectTimer) toast('连接成功', 'ok');
-    if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
+    toast('连接成功', 'ok');
   });
   c.on('data', handleData);
   c.on('close', () => {
     isConnected = false;
     conn = null;
-    setStatus('连接已断开，尝试重连…', '');
-    addSys('连接已断开，正在尝试重连…');
+    setStatus('连接已断开', 'err');
+    addSys('连接已断开');
     setTimeout(() => { els.btnConnect.disabled = false; els.btnConnect.textContent = '连接'; }, 100);
-    startAutoReconnect();
   });
   c.on('error', err => {
     console.error(err);
@@ -1934,35 +1838,9 @@ function bindConn(c) {
   });
 }
 
-function startAutoReconnect() {
-  if (reconnectTimer) return;
-  if (!lastPeerCode) return;
-  let attempts = 0;
-  reconnectTimer = setInterval(() => {
-    attempts++;
-    if (isConnected) {
-      clearInterval(reconnectTimer);
-      reconnectTimer = null;
-      return;
-    }
-    if (attempts > 10) {
-      clearInterval(reconnectTimer);
-      reconnectTimer = null;
-      setStatus('重连失败，请手动连接', 'err');
-      return;
-    }
-    if (!conn && peer && !peer.destroyed) {
-      try {
-        const c = peer.connect(lastPeerCode, { reliable: true });
-        bindConn(c);
-      } catch(e) {}
-    }
-  }, 3000);
-}
-
 function switchToChat() {
   els.connectView.classList.add('hide');
-  els.chatView.classList.remove('hide');
+  els.chatWrap.classList.remove('hide');
   els.composer.classList.remove('hide');
   els.btnMenu.classList.remove('hide');
   els.btnQR.classList.add('hide');
@@ -1970,7 +1848,7 @@ function switchToChat() {
 }
 function switchToConnect() {
   els.connectView.classList.remove('hide');
-  els.chatView.classList.add('hide');
+  els.chatWrap.classList.add('hide');
   els.composer.classList.add('hide');
   els.btnMenu.classList.add('hide');
   els.btnQR.classList.remove('hide');
@@ -1983,7 +1861,6 @@ function resetAll() {
   previewCache.forEach(v => URL.revokeObjectURL(v.url));
   previewCache.clear();
   receivedFiles.length = 0;
-  if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
   els.chatView.innerHTML = '';
   els.peerInput.value = '';
   els.btnConnect.disabled = false;
@@ -2277,9 +2154,7 @@ function openPreview(id) {
     els.modalBody.appendChild(pre);
     item.blob.text().then(txt => {
       const MAX = 200000;
-      pre.textContent = txt.length > MAX
-        ? txt.slice(0, MAX) + `\n\n… 已截断（共 ${txt.length} 字符），完整内容请下载查看`
-        : txt;
+      pre.textContent = txt.length > MAX ? txt.slice(0, MAX) + `\n\n… 已截断` : txt;
     }).catch(() => { pre.textContent = '无法读取文本内容'; });
   } else {
     els.modalBody.innerHTML = '<div style="padding:60px 20px;color:var(--text-3)">该类型暂不支持预览</div>';
@@ -2333,27 +2208,13 @@ let cameras = [];
 async function openScanner() {
   els.scanModal.classList.add('show');
   document.body.style.overflow = 'hidden';
-
-  if (!html5QrCode) {
-    html5QrCode = new Html5Qrcode('qrReader');
-  }
-
+  if (!html5QrCode) html5QrCode = new Html5Qrcode('qrReader');
   try {
     cameras = await Html5Qrcode.getCameras();
-    if (!cameras || !cameras.length) {
-      toast('未检测到摄像头', 'err');
-      closeScanner();
-      return;
-    }
+    if (!cameras || !cameras.length) { toast('未检测到摄像头', 'err'); closeScanner(); return; }
     let back = cameras.find(c => /back|rear|environment/i.test(c.label));
     currentCamId = (back || cameras[cameras.length - 1]).id;
-
-    await html5QrCode.start(
-      currentCamId,
-      { fps: 10, qrbox: { width: 240, height: 240 } },
-      onScanSuccess,
-      () => {}
-    );
+    await html5QrCode.start(currentCamId, { fps: 10, qrbox: { width: 240, height: 240 } }, onScanSuccess, () => {});
   } catch (e) {
     console.error(e);
     toast('无法启动摄像头：' + (e.message || e), 'err');
@@ -2380,34 +2241,20 @@ function handleScanResult(text) {
     const m = text.match(/\d{6}/);
     if (m) code = m[0];
   }
-  if (!/^\d{6}$/.test(code)) {
-    toast('无法识别连接码', 'err');
-    return;
-  }
+  if (!/^\d{6}$/.test(code)) { toast('无法识别连接码', 'err'); return; }
   els.peerInput.value = code;
-  toast('已识别连接码 ' + code, 'ok');
-  setTimeout(() => connectPeer(), 400);
+  toast('已识别连接码 ' + code + '，请点击连接', 'ok');
 }
 
 async function switchCamera() {
-  if (!html5QrCode || cameras.length < 2) {
-    toast('只有一个摄像头', 'err');
-    return;
-  }
+  if (!html5QrCode || cameras.length < 2) { toast('只有一个摄像头', 'err'); return; }
   const idx = cameras.findIndex(c => c.id === currentCamId);
   const next = cameras[(idx + 1) % cameras.length];
   currentCamId = next.id;
   try {
     await html5QrCode.stop();
-    await html5QrCode.start(
-      currentCamId,
-      { fps: 10, qrbox: { width: 240, height: 240 } },
-      onScanSuccess,
-      () => {}
-    );
-  } catch (e) {
-    toast('切换失败', 'err');
-  }
+    await html5QrCode.start(currentCamId, { fps: 10, qrbox: { width: 240, height: 240 } }, onScanSuccess, () => {});
+  } catch (e) { toast('切换失败', 'err'); }
 }
 
 async function closeScanner() {
@@ -2441,7 +2288,6 @@ function sendOneFile(file) {
   return new Promise(resolve => {
     const id = Math.random().toString(36).slice(2, 10);
     const total = Math.ceil(file.size / CHUNK_SIZE) || 1;
-
     const task = { paused: false, cancelled: false, resolve };
     currentSendTask = task;
 
@@ -2567,10 +2413,7 @@ function renderSendFile(file, id) {
       }
       sizeEl.textContent = `发送中 ${(p*100).toFixed(0)}% · ${formatSize(p*file.size)} / ${formatSize(file.size)}${extra}`;
     },
-    setPaused() {
-      bar.classList.add('paused');
-      sizeEl.textContent = '已暂停';
-    },
+    setPaused() { bar.classList.add('paused'); sizeEl.textContent = '已暂停'; },
     setDone() {
       bar.classList.remove('paused');
       bar.style.width = '100%';
@@ -2749,18 +2592,11 @@ document.addEventListener('keydown', e => {
   });
 });
 
-/* URL 参数 */
 function readPeerFromUrl() {
   const p = new URLSearchParams(location.search).get('peer');
   if (p && /^\d{6}$/.test(p) && p !== myCode) {
     els.peerInput.value = p;
-    const tryConnect = setInterval(() => {
-      if (myCode && myCode !== p) {
-        clearInterval(tryConnect);
-        connectPeer(true);
-      }
-    }, 300);
-    setTimeout(() => clearInterval(tryConnect), 6000);
+    toast('已填入连接码 ' + p + '，请点击连接', 'ok');
   }
 }
 
@@ -2773,51 +2609,3 @@ setTimeout(readPeerFromUrl, 500);
 </script>
 </body>
 </html>
-
-## 这版改了什么
-
-### 1. 布局重做（解决"第一次用不知道干嘛"）
-
-- **删掉侧栏**，改单栏居中布局（最大 900px）
-- **连接页放主区域**，一打开就能看到：
-  - ① 我的连接码（大号显示 + 复制 + 二维码按钮）
-  - ② 扫码连接（大按钮，一眼就知道能扫）
-  - ③ 或输入连接码（输入框 + 连接按钮）
-  - ④ 最近连接（有历史才显示）
-- **连接成功后自动切聊天**，连接页和底栏自动隐藏
-- 顶栏随状态切换：未连接时显示 📱 二维码按钮，连接后换成 ⋯ 菜单
-
-### 2. 二维码内嵌生成器（彻底解决生成不出来）
-
-- 把 `qrcode-generator` 的核心代码**内嵌进 HTML**（约 500 行），不依赖任何 CDN
-- 支持自动版本选择（1-40）
-- 用 canvas 渲染，清晰、兼容性最好
-- 如果还失败会明确报错，不会静默
-
-### 3. 精简功能（删掉没用的）
-
-**删掉**：
-- 侧栏、欢迎页的装饰
-- "选图片/视频/音频"三个按钮（📎 已能选全部）
-- "选择文件夹"（合并进 📎 的 accept）
-- 音效提示
-- 装饰性动画
-
-**保留并整合**：
-- 底栏 📎（选文件）+ 🎙（录音，带红色脉冲状态）
-- 顶栏 ⋯ 菜单：粘贴发送 / 全部下载 / 清空记录 / 断开连接
-
-### 4. 保留真有用的
-
-- 扫码（html5-qrcode）
-- 二维码（内嵌生成器）
-- 断线自动重连（3 秒一次，最多 10 次）
-- 传输速度 + 剩余时间
-- 暂停/继续/取消发送
-- 预览器（图片/视频/音频/PDF/文本）
-- 主题切换
-- 连接历史
-
-## 部署
-
-上传到 GitHub Pages，手机和电脑打开同一个地址。手机扫码 → 自动连电脑，或电脑扫手机码。首次打开扫码会请求摄像头权限，允许即可。
