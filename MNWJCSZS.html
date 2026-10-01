@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文件传输助手</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; padding: 16px;
+    background: #f5f6f8; color: #222;
+    min-height: 100vh;
+  }
+  h1 { font-size: 20px; text-align: center; margin: 8px 0 16px; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 16px;
+    margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .label { font-size: 13px; color: #666; margin-bottom: 6px; }
+  .id-box {
+    font-size: 22px; font-weight: 700; letter-spacing: 2px;
+    text-align: center; padding: 12px; background: #eef1ff;
+    border-radius: 8px; color: #3b5bdb; user-select: all;
+    cursor: pointer; word-break: break-all;
+  }
+  .id-box:active { background: #dde3ff; }
+  .hint { font-size: 12px; color: #999; text-align: center; margin-top: 6px; }
+  input[type=text] {
+    width: 100%; padding: 12px; font-size: 16px;
+    border: 1px solid #ddd; border-radius: 8px; outline: none;
+  }
+  input[type=text]:focus { border-color: #3b5bdb; }
+  button {
+    width: 100%; padding: 12px; font-size: 16px; font-weight: 600;
+    border: none; border-radius: 8px; background: #3b5bdb; color: #fff;
+    margin-top: 10px; cursor: pointer;
+  }
+  button:active { background: #2f4ac0; }
+  button:disabled { background: #ccc; }
+  button.secondary { background: #eee; color: #333; }
+  button.secondary:active { background: #ddd; }
+  .status {
+    text-align: center; font-size: 14px; padding: 10px;
+    border-radius: 8px; margin-bottom: 12px;
+  }
+  .status.off { background: #fff3cd; color: #856404; }
+  .status.on { background: #d4edda; color: #155724; }
+  .status.err { background: #f8d7da; color: #721c24; }
+  .drop {
+    border: 2px dashed #bbb; border-radius: 12px; padding: 32px 16px;
+    text-align: center; color: #888; font-size: 15px;
+    transition: .2s; cursor: pointer;
+  }
+  .drop.over { border-color: #3b5bdb; background: #eef1ff; color: #3b5bdb; }
+  .drop input { display: none; }
+  .file-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px; border-bottom: 1px solid #eee; font-size: 14px;
+  }
+  .file-item:last-child { border-bottom: none; }
+  .file-name { flex: 1; word-break: break-all; }
+  .file-size { color: #999; font-size: 12px; white-space: nowrap; }
+  .file-action {
+    font-size: 13px; color: #3b5bdb; text-decoration: none;
+    white-space: nowrap; font-weight: 600;
+  }
+  .progress {
+    height: 6px; background: #eee; border-radius: 3px;
+    overflow: hidden; margin-top: 6px;
+  }
+  .progress-bar {
+    height: 100%; background: #3b5bdb; width: 0%;
+    transition: width .15s;
+  }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>📁 文件传输助手</h1>
+
+<div id="status" class="status off">正在初始化…</div>
+
+<!-- 我的 ID -->
+<div class="card" id="myIdCard">
+  <div class="label">我的连接码（把这串数字发给对方）</div>
+  <div class="id-box" id="myId" onclick="copyId()">------</div>
+  <div class="hint">点击可复制</div>
+</div>
+
+<!-- 连接对方 -->
+<div class="card" id="connectCard">
+  <div class="label">输入对方的连接码</div>
+  <input type="text" id="peerInput" placeholder="例如 123456" inputmode="numeric">
+  <button id="connectBtn" onclick="connectPeer()">连接</button>
+</div>
+
+<!-- 传输区 -->
+<div class="card hidden" id="transferCard">
+  <div class="label">发送文件（可多选）</div>
+  <label class="drop" id="dropZone">
+    <input type="file" id="fileInput" multiple>
+    <div>点击选择文件，或拖拽到此处</div>
+  </label>
+  <div id="sendList"></div>
+</div>
+
+<!-- 接收区 -->
+<div class="card hidden" id="recvCard">
+  <div class="label">接收到的文件</div>
+  <div id="recvList"><div class="hint" style="text-align:left">暂无</div></div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+// ====== 全局状态 ======
+let peer = null;
+let conn = null;
+let myId = '';
+const CHUNK_SIZE = 64 * 1024; // 64KB 每块，兼容性好
+const MAX_BUFFER = 4 * 1024 * 1024; // 缓冲区上限 4MB
+
+// 接收文件状态
+let recvFile = null;   // { name, size, type, chunks: [], received: 0 }
+let recvQueue = [];    // 防止多文件同时到达
+
+// ====== DOM ======
+const $ = id => document.getElementById(id);
+const statusEl = $('status');
+
+function setStatus(text, type) {
+  statusEl.textContent = text;
+  statusEl.className = 'status ' + (type || 'off');
+}
+
+// ====== 生成 6 位数字 ID ======
+function genId() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+// ====== 复制 ID ======
+function copyId() {
+  if (!myId) return;
+  navigator.clipboard?.writeText(myId).then(() => {
+    const el = $('myId');
+    const old = el.textContent;
+    el.textContent = '已复制 ✓';
+    setTimeout(() => el.textContent = old, 800);
+  }).catch(() => {});
+}
+
+// ====== 初始化 PeerJS ======
+function initPeer() {
+  myId = genId();
+  peer = new Peer(myId, {
+    debug: 1,
+    config: {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    }
+  });
+
+  peer.on('open', id => {
+    myId = id;
+    $('myId').textContent = id;
+    setStatus('✅ 就绪，等待连接…', 'on');
+  });
+
+  peer.on('connection', c => {
+    if (conn && conn.open) {
+      // 已有连接，拒绝新的
+      c.close();
+      return;
+    }
+    setupConn(c);
+    setStatus('🔗 对方已连接', 'on');
+  });
+
+  peer.on('error', err => {
+    console.error(err);
+    if (err.type === 'unavailable-id') {
+      // ID 冲突，重新生成
+      peer.destroy();
+      initPeer();
+    } else if (err.type === 'peer-unavailable') {
+      setStatus('❌ 连接码不存在或对方不在线', 'err');
+    } else {
+      setStatus('⚠️ 错误：' + err.type, 'err');
+    }
+  });
+
+  peer.on('disconnected', () => {
+    setStatus('⚠️ 与信令服务器断开，尝试重连…', 'off');
+    peer.reconnect();
+  });
+}
+
+// ====== 主动连接对方 ======
+function connectPeer() {
+  const target = $('peerInput').value.trim();
+  if (!target) return;
+  if (target === myId) { setStatus('❌ 不能连接自己', 'err'); return; }
+  setStatus('正在连接 ' + target + ' …', 'off');
+  const c = peer.connect(target, { reliable: true });
+  setupConn(c);
+}
+
+// ====== 建立连接后的通用设置 ======
+function setupConn(c) {
+  conn = c;
+
+  c.on('open', () => {
+    setStatus('🔗 已连接，可以传文件了', 'on');
+    $('connectCard').classList.add('hidden');
+    $('transferCard').classList.remove('hidden');
+    $('recvCard').classList.remove('hidden');
+  });
+
+  c.on('data', handleData);
+
+  c.on('close', () => {
+    setStatus('⚠️ 连接已断开', 'off');
+    conn = null;
+    $('connectCard').classList.remove('hidden');
+    $('transferCard').classList.add('hidden');
+  });
+
+  c.on('error', err => {
+    console.error(err);
+    setStatus('⚠️ 连接错误', 'err');
+  });
+}
+
+// ====== 处理收到的数据 ======
+function handleData(data) {
+  // 文本消息（元信息）
+  if (typeof data === 'string') {
+    try {
+      const msg = JSON.parse(data);
+      if (msg.type === 'file-start') {
+        recvFile = {
+          name: msg.name,
+          size: msg.size,
+          mime: msg.mime,
+          chunks: [],
+          received: 0
+        };
+        renderReceiving(recvFile);
+      } else if (msg.type === 'file-end') {
+        if (recvFile) {
+          const blob = new Blob(recvFile.chunks, { type: recvFile.mime || 'application/octet-stream' });
+          finishReceive(recvFile, blob);
+          recvFile = null;
+        }
+      }
+    } catch (e) { /* 忽略 */ }
+    return;
+  }
+
+  // 二进制块
+  if (data instanceof ArrayBuffer && recvFile) {
+    recvFile.chunks.push(data);
+    recvFile.received += data.byteLength;
+    updateReceiving(recvFile);
+  }
+}
+
+// ====== 发送文件 ======
+async function sendFiles(files) {
+  if (!conn || !conn.open) { alert('尚未连接'); return; }
+  for (const file of files) {
+    await sendOneFile(file);
+  }
+}
+
+function sendOneFile(file) {
+  return new Promise(resolve => {
+    // 先发元信息
+    conn.send(JSON.stringify({
+      type: 'file-start',
+      name: file.name,
+      size: file.size,
+      mime: file.type
+    }));
+
+    const item = renderSending(file);
+
+    let offset = 0;
+    const reader = new FileReader();
+
+    const readNext = () => {
+      if (offset >= file.size) {
+        conn.send(JSON.stringify({ type: 'file-end' }));
+        item.setDone();
+        resolve();
+        return;
+      }
+      const slice = file.slice(offset, offset + CHUNK_SIZE);
+      reader.readAsArrayBuffer(slice);
+    };
+
+    reader.onload = e => {
+      const buf = e.target.result;
+      // 等待缓冲区有空位
+      const waitAndSend = () => {
+        if (!conn || !conn.open) { resolve(); return; }
+        if (conn.dataChannel && conn.dataChannel.bufferedAmount > MAX_BUFFER) {
+          setTimeout(waitAndSend, 20);
+        } else {
+          conn.send(buf);
+          offset += buf.byteLength;
+          item.setProgress(offset / file.size);
+          readNext();
+        }
+      };
+      waitAndSend();
+    };
+
+    reader.onerror = () => { item.setError(); resolve(); };
+    readNext();
+  });
+}
+
+// ====== UI：发送列表 ======
+function renderSending(file) {
+  const list = $('sendList');
+  const div = document.createElement('div');
+  div.className = 'file-item';
+  div.innerHTML = `
+    <div class="file-name">${escapeHtml(file.name)}
+      <div class="progress"><div class="progress-bar"></div></div>
+    </div>
+    <div class="file-size">${formatSize(file.size)}</div>
+  `;
+  list.appendChild(div);
+  const bar = div.querySelector('.progress-bar');
+  return {
+    setProgress(p) { bar.style.width = (p * 100).toFixed(1) + '%'; },
+    setDone() { bar.style.width = '100%'; bar.style.background = '#28a745'; },
+    setError() { bar.style.background = '#dc3545'; }
+  };
+}
+
+// ====== UI：接收列表 ======
+let recvItemEl = null;
+function renderReceiving(info) {
+  const list = $('recvList');
+  if (list.querySelector('.hint')) list.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'file-item';
+  div.innerHTML = `
+    <div class="file-name">${escapeHtml(info.name)}
+      <div class="progress"><div class="progress-bar"></div></div>
+    </div>
+    <div class="file-size">接收中…</div>
+  `;
+  list.appendChild(div);
+  recvItemEl = { el: div, bar: div.querySelector('.progress-bar'), sizeEl: div.querySelector('.file-size') };
+}
+
+function updateReceiving(info) {
+  if (!recvItemEl) return;
+  recvItemEl.bar.style.width = (info.received / info.size * 100).toFixed(1) + '%';
+  recvItemEl.sizeEl.textContent = formatSize(info.received) + ' / ' + formatSize(info.size);
+}
+
+function finishReceive(info, blob) {
+  if (!recvItemEl) return;
+  recvItemEl.bar.style.width = '100%';
+  recvItemEl.bar.style.background = '#28a745';
+  recvItemEl.sizeEl.textContent = formatSize(info.size);
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = info.name;
+  a.className = 'file-action';
+  a.textContent = '下载';
+  recvItemEl.el.appendChild(a);
+
+  // 手机上自动触发下载
+  a.click();
+  recvItemEl = null;
+}
+
+// ====== 工具函数 ======
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  return (bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ====== 事件绑定 ======
+$('fileInput').addEventListener('change', e => {
+  if (e.target.files.length) sendFiles(e.target.files);
+  e.target.value = '';
+});
+
+const dropZone = $('dropZone');
+['dragenter', 'dragover'].forEach(ev => {
+  dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('over'); });
+});
+['dragleave', 'drop'].forEach(ev => {
+  dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('over'); });
+});
+dropZone.addEventListener('drop', e => {
+  if (e.dataTransfer.files.length) sendFiles(e.dataTransfer.files);
+});
+
+// ====== 启动 ======
+initPeer();
+</script>
+</body>
+</html>
