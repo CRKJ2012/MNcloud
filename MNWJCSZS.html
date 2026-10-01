@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#fafbfd" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0e1015" media="(prefers-color-scheme: dark)">
 <title>牦牛文件传输助手</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
@@ -23,7 +26,6 @@
     --text-4: #b8bdcb;
     --accent: #3b6ef5;
     --accent-2: #7a5cff;
-    --accent-3: #22c1c3;
     --accent-soft: #eef3ff;
     --accent-line: #d6e0ff;
     --accent-glow: rgba(59,110,245,0.28);
@@ -90,7 +92,6 @@
     transition: background .3s var(--ease), color .3s var(--ease);
   }
 
-  /* ===== 布局 ===== */
   .app {
     display: flex;
     height: 100vh;
@@ -103,7 +104,7 @@
     .app { height: 100vh; }
   }
 
-  /* ===== 左侧栏（桌面端） ===== */
+  /* ===== 侧栏 ===== */
   .sidebar {
     width: 340px;
     flex-shrink: 0;
@@ -174,6 +175,7 @@
     cursor: pointer;
     transition: .2s var(--ease);
     flex-shrink: 0;
+    font-family: inherit;
   }
   .icon-btn:hover { background: var(--surface-2); color: var(--text); }
   .icon-btn:active { transform: scale(.92); }
@@ -188,16 +190,6 @@
 
   .section {
     margin-bottom: 22px;
-    animation: fadeUp .5s var(--ease) both;
-  }
-  .section:nth-child(2) { animation-delay: .06s; }
-  .section:nth-child(3) { animation-delay: .12s; }
-  .section:nth-child(4) { animation-delay: .18s; }
-  .section:nth-child(5) { animation-delay: .24s; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   .section-title {
@@ -212,7 +204,6 @@
     gap: 6px;
   }
 
-  /* 我的连接码 */
   .my-code {
     background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(122,92,255,0.06) 100%);
     border: 1px solid var(--accent-line);
@@ -251,7 +242,6 @@
     letter-spacing: .04em;
   }
 
-  /* 连接输入 */
   .field { display: flex; gap: 8px; }
   .field input {
     flex: 1;
@@ -319,19 +309,11 @@
     transform: none;
   }
   .btn:disabled::after { display: none; }
-  .btn.ghost {
-    background: var(--surface-2);
-    border: 1px solid var(--line);
-    color: var(--text-2);
-    box-shadow: none;
-  }
-  .btn.ghost::after { display: none; }
-  .btn.ghost:hover { background: var(--surface-3); border-color: var(--line-strong); transform: none; }
   .btn.block { width: 100%; }
 
-  /* 快捷操作网格 */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
   .tile {
     background: var(--surface-2);
     border: 1px solid var(--line);
@@ -343,7 +325,6 @@
     gap: 6px;
     cursor: pointer;
     transition: .2s var(--ease);
-    font-size: 12px;
     color: var(--text-2);
     font-weight: 500;
     text-align: center;
@@ -357,7 +338,6 @@
   .tile .ico { font-size: 20px; line-height: 1; }
   .tile .txt { font-size: 11.5px; letter-spacing: .01em; }
 
-  /* 历史记录 */
   .history-list { display: flex; flex-direction: column; gap: 4px; }
   .history-item {
     display: flex;
@@ -390,32 +370,7 @@
   .history-item:hover .del { opacity: 1; }
   .history-item .del:hover { background: var(--err-soft); color: var(--err); }
 
-  .empty-hint {
-    text-align: center;
-    color: var(--text-4);
-    font-size: 12px;
-    padding: 16px 8px;
-  }
-
-  /* 二维码 */
-  .qr-wrap {
-    background: var(--surface-2);
-    border: 1px solid var(--line);
-    border-radius: var(--r-md);
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-  .qr-wrap canvas {
-    background: #fff;
-    border-radius: 8px;
-    padding: 6px;
-    box-shadow: var(--shadow-sm);
-  }
-
-  /* ===== 右侧主区域 ===== */
+  /* ===== 主区域 ===== */
   .main-wrap {
     flex: 1;
     display: flex;
@@ -455,7 +410,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* 主区域 */
   .main {
     flex: 1;
     overflow-y: auto;
@@ -468,7 +422,6 @@
   .main::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; border: 2px solid var(--surface); }
   .main::-webkit-scrollbar-thumb:hover { background: var(--text-4); }
 
-  /* 连接欢迎页 */
   .welcome {
     min-height: 100%;
     display: flex;
@@ -479,7 +432,6 @@
   .welcome-inner {
     max-width: 480px;
     text-align: center;
-    animation: fadeUp .6s var(--ease) both;
   }
   .welcome .big-logo {
     width: 88px; height: 88px;
@@ -491,11 +443,6 @@
     box-shadow: 0 24px 60px -20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.4);
     position: relative;
     overflow: hidden;
-    animation: floaty 4s ease-in-out infinite;
-  }
-  @keyframes floaty {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
   }
   .welcome .big-logo::after {
     content: '';
@@ -535,7 +482,7 @@
   .feat .ico { font-size: 22px; }
   .feat .t { font-size: 12px; color: var(--text-2); font-weight: 500; }
 
-  /* ===== 聊天区 ===== */
+  /* ===== 聊天 ===== */
   .chat {
     display: flex;
     flex-direction: column;
@@ -564,13 +511,13 @@
     display: flex;
     gap: 8px;
     max-width: 100%;
-    animation: msgIn .35s var(--ease) both;
+    animation: msgIn .3s var(--ease) both;
     position: relative;
   }
   .row.me { flex-direction: row-reverse; }
   @keyframes msgIn {
-    from { opacity: 0; transform: translateY(8px) scale(.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .bubble-wrap { position: relative; max-width: 76%; }
@@ -607,7 +554,6 @@
   .row.me .bubble .stamp { color: rgba(255,255,255,.9); }
   .row.them .bubble .stamp { color: var(--text-3); }
 
-  /* 气泡悬停操作 */
   .bubble-actions {
     position: absolute;
     top: 50%;
@@ -632,6 +578,7 @@
     display: flex; align-items: center; justify-content: center;
     transition: .15s var(--ease);
     box-shadow: var(--shadow-sm);
+    font-family: inherit;
   }
   .bubble-actions button:hover { background: var(--surface-2); color: var(--accent); border-color: var(--accent-line); }
   .bubble-actions button:active { transform: scale(.9); }
@@ -639,8 +586,8 @@
   /* ===== 文件卡片 ===== */
   .file-card {
     width: 100%;
-    min-width: 260px;
-    max-width: 380px;
+    min-width: 280px;
+    max-width: 400px;
     background: var(--bg-elev);
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
@@ -701,6 +648,7 @@
     background: var(--surface-3);
     border-radius: 3px;
     overflow: hidden;
+    position: relative;
   }
   .bar .fill {
     height: 100%;
@@ -710,6 +658,7 @@
     transition: width .25s var(--ease);
   }
   .bar .fill.done { background: linear-gradient(90deg, #17b877, #14a56a); }
+  .bar .fill.paused { background: linear-gradient(90deg, #f5a623, #e09112); }
 
   .file-actions { display: flex; gap: 6px; }
   .btn-action {
@@ -745,6 +694,18 @@
   }
   .btn-action.ghost:hover { background: var(--surface-3); border-color: var(--line-strong); color: var(--accent); }
   .btn-action.ghost:active { transform: scale(.97); }
+  .btn-action.warn {
+    background: var(--warn-soft);
+    border: 1px solid rgba(245,166,35,.3);
+    color: #b8780e;
+  }
+  .btn-action.warn:hover { background: rgba(245,166,35,.2); }
+  .btn-action.danger {
+    background: var(--err-soft);
+    border: 1px solid rgba(255,77,79,.3);
+    color: var(--err);
+  }
+  .btn-action.danger:hover { background: rgba(255,77,79,.15); }
 
   /* ===== 底部输入栏 ===== */
   .composer {
@@ -842,7 +803,7 @@
   }
   .send-btn:disabled::after { display: none; }
 
-  /* 拖拽全屏投放 */
+  /* 拖拽 */
   .drop-overlay {
     position: fixed;
     inset: 0;
@@ -863,30 +824,12 @@
     padding: 60px 80px;
     text-align: center;
     box-shadow: var(--shadow-xl);
-    animation: dropIn .3s var(--ease-bounce) both;
   }
-  @keyframes dropIn {
-    from { opacity: 0; transform: scale(.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  .drop-box .ico {
-    font-size: 56px;
-    margin-bottom: 16px;
-    display: block;
-  }
-  .drop-box .t {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.01em;
-  }
-  .drop-box .s {
-    font-size: 13px;
-    color: var(--text-3);
-    margin-top: 6px;
-  }
+  .drop-box .ico { font-size: 56px; margin-bottom: 16px; display: block; }
+  .drop-box .t { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+  .drop-box .s { font-size: 13px; color: var(--text-3); margin-top: 6px; }
 
-  /* ===== 预览弹窗 ===== */
+  /* ===== 弹窗 ===== */
   .modal {
     position: fixed;
     inset: 0;
@@ -989,7 +932,31 @@
   }
   .modal-foot .btn-action { flex: 1; padding: 11px 16px; font-size: 13.5px; }
 
-  /* Toast 提示 */
+  /* 二维码 */
+  .qr-wrap {
+    background: #fff;
+    border-radius: var(--r-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .qr-wrap svg { display: block; max-width: 100%; height: auto; border-radius: 6px; }
+  .qr-wrap .num {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: .15em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 扫码 */
+  #qrReader { width: 100%; min-height: 300px; background: #000; }
+  #qrReader video { width: 100% !important; height: auto !important; display: block; }
+  #qrReader img { display: none; }
+
+  /* Toast */
   .toast-wrap {
     position: fixed;
     top: 20px;
@@ -1020,16 +987,14 @@
     from { opacity: 0; transform: translateY(-16px) scale(.9); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
-  .toast.out {
-    animation: toastOut .3s var(--ease) forwards;
-  }
+  .toast.out { animation: toastOut .3s var(--ease) forwards; }
   @keyframes toastOut {
     to { opacity: 0; transform: translateY(-12px) scale(.95); }
   }
   .toast.ok { background: linear-gradient(135deg, #17b877, #14a56a); color: #fff; }
   .toast.err { background: linear-gradient(135deg, #ff4d4f, #e63946); color: #fff; }
 
-  /* ===== 响应式 ===== */
+  /* 响应式 */
   @media (max-width: 860px) {
     .sidebar {
       position: fixed;
@@ -1072,10 +1037,8 @@
     #btnMenu { display: none !important; }
   }
 
-  /* 工具类 */
   .hide { display: none !important; }
 
-  /* 加载 */
   .spinner {
     width: 32px; height: 32px;
     border: 3px solid var(--line);
@@ -1093,16 +1056,34 @@
     font-size: 13px;
     padding: 60px 20px;
   }
+
+  /* 未读角标 */
+  .badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--err);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px var(--bg-elev);
+  }
+  .badge.show { display: flex; }
 </style>
 </head>
 <body>
 
 <div class="app" id="app">
 
-  <!-- 侧栏遮罩（移动端） -->
   <div class="sidebar-mask" id="sidebarMask" onclick="toggleSidebar(false)"></div>
 
-  <!-- ===== 侧栏 ===== -->
   <aside class="sidebar" id="sidebar">
     <div class="side-head">
       <div class="logo">🐃</div>
@@ -1117,25 +1098,25 @@
     </div>
 
     <div class="side-body">
-
-      <!-- 我的连接码 -->
       <div class="section">
         <div class="section-title">📡 我的连接码</div>
         <div class="my-code" onclick="copyCode()">
           <div class="num" id="myCode">------</div>
           <div class="hint">点击复制 · 发给对方</div>
         </div>
-        <div class="grid-2" style="margin-top:8px">
+        <div class="grid-3" style="margin-top:8px">
           <button class="tile" onclick="showQR()">
-            <span class="ico">📱</span><span class="txt">二维码</span>
+            <span class="ico">📱</span><span class="txt">我的码</span>
+          </button>
+          <button class="tile" onclick="openScanner()">
+            <span class="ico">📷</span><span class="txt">扫码</span>
           </button>
           <button class="tile" onclick="copyCode()">
-            <span class="ico">📋</span><span class="txt">复制码</span>
+            <span class="ico">📋</span><span class="txt">复制</span>
           </button>
         </div>
       </div>
 
-      <!-- 连接对方 -->
       <div class="section">
         <div class="section-title">🔗 连接对方</div>
         <div class="field">
@@ -1144,13 +1125,11 @@
         </div>
       </div>
 
-      <!-- 历史记录 -->
       <div class="section" id="historySection" style="display:none">
         <div class="section-title">🕐 最近连接</div>
         <div class="history-list" id="historyList"></div>
       </div>
 
-      <!-- 快捷操作 -->
       <div class="section">
         <div class="section-title">⚡ 快捷操作</div>
         <div class="grid-2">
@@ -1175,7 +1154,6 @@
         </div>
       </div>
 
-      <!-- 其他操作 -->
       <div class="section">
         <div class="section-title">🛠 其他</div>
         <div class="grid-2">
@@ -1193,13 +1171,10 @@
           </button>
         </div>
       </div>
-
     </div>
   </aside>
 
-  <!-- ===== 主区域 ===== -->
   <div class="main-wrap">
-
     <div class="chat-head">
       <button class="icon-btn" id="btnMenu" onclick="toggleSidebar(true)" title="菜单" style="display:none">☰</button>
       <div class="status-line">
@@ -1210,7 +1185,6 @@
     </div>
 
     <main class="main" id="main">
-      <!-- 欢迎页 -->
       <div class="welcome" id="welcomeView">
         <div class="welcome-inner">
           <div class="big-logo">🐃</div>
@@ -1224,11 +1198,9 @@
           </div>
         </div>
       </div>
-      <!-- 聊天区 -->
       <div class="chat hide" id="chatView"></div>
     </main>
 
-    <!-- 输入栏 -->
     <footer class="composer hide" id="composer">
       <div class="composer-inner">
         <label class="round-btn" title="发送文件">
@@ -1245,12 +1217,9 @@
         </button>
       </div>
     </footer>
-
   </div>
-
 </div>
 
-<!-- 拖拽全屏投放 -->
 <div class="drop-overlay" id="dropOverlay">
   <div class="drop-box">
     <span class="ico">📥</span>
@@ -1271,35 +1240,51 @@
   </div>
 </div>
 
-<!-- 二维码弹窗 -->
+<!-- 我的二维码弹窗 -->
 <div class="modal" id="qrModal">
-  <div class="modal-inner" style="max-width:360px;height:auto">
+  <div class="modal-inner" style="max-width:400px;height:auto">
     <div class="modal-head">
-      <div class="title">扫描二维码连接<small>用另一台设备扫码</small></div>
+      <div class="title">我的二维码<small>让对方用手机扫</small></div>
       <button class="icon-btn" onclick="closeQR()">✕</button>
     </div>
-    <div class="modal-body" style="padding:24px">
+    <div class="modal-body" style="padding:24px;background:var(--surface-2)">
       <div class="qr-wrap">
-        <canvas id="qrCanvas"></canvas>
-        <div style="font-size:20px;font-weight:800;letter-spacing:.15em;color:var(--accent);font-variant-numeric:tabular-nums" id="qrCodeText">------</div>
+        <div id="qrSvgHolder"></div>
+        <div class="num" id="qrCodeText">------</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
+<!-- 扫码弹窗 -->
+<div class="modal" id="scanModal">
+  <div class="modal-inner" style="max-width:480px;height:auto">
+    <div class="modal-head">
+      <div class="title">扫描对方二维码<small>对准屏幕上的二维码</small></div>
+      <button class="icon-btn" onclick="closeScanner()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0;background:#000">
+      <div id="qrReader"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action ghost" id="btnSwitchCam" onclick="switchCamera()">🔄 切换摄像头</button>
+      <button class="btn-action ghost" onclick="closeScanner()">取消</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toastWrap"></div>
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 /* =========================================================
-   牦牛文件传输助手 v2
+   牦牛文件传输助手 v3
    ========================================================= */
 
 const CHUNK_SIZE = 16 * 1024;
 const MAX_BUFFER = 1.5 * 1024 * 1024;
 const LS_KEY = 'yak-transfer-history';
 const LS_THEME = 'yak-transfer-theme';
+const RECONNECT_KEY = 'yak-transfer-last-peer';
 
 let peer = null;
 let conn = null;
@@ -1309,6 +1294,13 @@ let recvFile = null;
 let messageCount = 0;
 let mediaRecorder = null;
 let audioChunks = [];
+let reconnectTimer = null;
+let lastPeerCode = localStorage.getItem(RECONNECT_KEY) || '';
+
+// 发送队列（支持暂停/继续）
+const sendQueue = [];
+let isSending = false;
+let currentSendTask = null;
 
 const $ = id => document.getElementById(id);
 const els = {
@@ -1339,14 +1331,16 @@ const els = {
   historyList: $('historyList'),
   historySection: $('historySection'),
   qrModal: $('qrModal'),
-  qrCanvas: $('qrCanvas'),
+  qrSvgHolder: $('qrSvgHolder'),
   qrCodeText: $('qrCodeText'),
+  scanModal: $('scanModal'),
+  qrReader: $('qrReader'),
 };
 
 const previewCache = new Map();
 const receivedFiles = [];
 
-// ---------- 主题 ----------
+/* ================= 主题 ================= */
 function initTheme() {
   const saved = localStorage.getItem(LS_THEME);
   if (saved) document.documentElement.setAttribute('data-theme', saved);
@@ -1360,25 +1354,22 @@ function toggleTheme() {
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem(LS_THEME, next);
   updateThemeBtn();
-  toast(next === 'dark' ? '🌙 深色模式' : '☀️ 浅色模式');
 }
 function updateThemeBtn() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   $('btnTheme').textContent = isDark ? '☀️' : '🌙';
 }
 
-// ---------- 状态 ----------
+/* ================= 状态 ================= */
 function setStatus(text, state) {
   els.statusText.textContent = text;
   els.statusTextTop.textContent = text;
   els.dot.className = 'dot' + (state ? ' ' + state : '');
   els.dotTop.className = 'dot' + (state ? ' ' + state : '');
 }
-
 function genCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
-
 function toast(msg, type) {
   const el = document.createElement('div');
   el.className = 'toast' + (type ? ' ' + type : '');
@@ -1389,15 +1380,9 @@ function toast(msg, type) {
     setTimeout(() => el.remove(), 300);
   }, 2200);
 }
-
 function copyCode() {
   if (!myCode) return;
   const done = () => {
-    const el = els.myCode;
-    const old = el.textContent;
-    el.textContent = '已复制 ✓';
-    el.style.letterSpacing = '0';
-    setTimeout(() => { el.textContent = old; el.style.letterSpacing = ''; }, 900);
     toast('已复制连接码', 'ok');
   };
   navigator.clipboard?.writeText(myCode).then(done).catch(() => fallbackCopy(myCode, done));
@@ -1411,7 +1396,7 @@ function fallbackCopy(text, cb) {
   document.body.removeChild(ta);
 }
 
-// ---------- 历史记录 ----------
+/* ================= 历史 ================= */
 function loadHistory() {
   try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch(e) { return []; }
 }
@@ -1436,8 +1421,7 @@ function renderHistory() {
   list.forEach(item => {
     const div = document.createElement('div');
     div.className = 'history-item';
-    const ago = timeAgo(item.time);
-    div.innerHTML = `<span class="code">${item.code}</span><span class="meta">${ago}</span><span class="del" title="删除">✕</span>`;
+    div.innerHTML = `<span class="code">${item.code}</span><span class="meta">${timeAgo(item.time)}</span><span class="del" title="删除">✕</span>`;
     div.onclick = e => {
       if (e.target.classList.contains('del')) { removeHistory(item.code); return; }
       els.peerInput.value = item.code;
@@ -1454,7 +1438,7 @@ function timeAgo(t) {
   return Math.floor(d / 86400000) + ' 天前';
 }
 
-// ---------- PeerJS ----------
+/* ================= PeerJS ================= */
 function initPeer() {
   myCode = genCode();
   peer = new Peer(myCode, {
@@ -1473,6 +1457,16 @@ function initPeer() {
     els.myCode.textContent = id;
     els.qrCodeText.textContent = id;
     setStatus('已就绪，等待连接', 'on');
+
+    // 断线自动重连
+    if (lastPeerCode && lastPeerCode !== id) {
+      setTimeout(() => {
+        if (!isConnected) {
+          els.peerInput.value = lastPeerCode;
+          connectPeer(true);
+        }
+      }, 800);
+    }
   });
 
   peer.on('connection', c => {
@@ -1488,7 +1482,7 @@ function initPeer() {
       setStatus('连接码不存在或对方不在线', 'err');
       els.btnConnect.disabled = false;
       els.btnConnect.textContent = '连接';
-      toast('连接失败：对方不在线', 'err');
+      if (!reconnectTimer) toast('连接失败：对方不在线', 'err');
     } else {
       setStatus('连接异常：' + err.type, 'err');
     }
@@ -1500,13 +1494,13 @@ function initPeer() {
   });
 }
 
-function connectPeer() {
+function connectPeer(silent) {
   const target = els.peerInput.value.trim();
   if (!/^\d{6}$/.test(target)) { toast('请输入 6 位数字连接码', 'err'); return; }
   if (target === myCode) { toast('不能连接自己', 'err'); return; }
   els.btnConnect.disabled = true;
   els.btnConnect.textContent = '连接中';
-  setStatus('正在连接 ' + target + ' …', '');
+  if (!silent) setStatus('正在连接 ' + target + ' …', '');
   const c = peer.connect(target, { reliable: true });
   bindConn(c);
 }
@@ -1521,18 +1515,53 @@ function bindConn(c) {
     showChat();
     addSys('已建立点对点连接 🔒');
     addHistory(c.peer);
-    toast('连接成功', 'ok');
+    localStorage.setItem(RECONNECT_KEY, c.peer);
+    lastPeerCode = c.peer;
+    if (!reconnectTimer) toast('连接成功', 'ok');
     toggleSidebar(false);
+    // 清除重连定时器
+    if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
   });
   c.on('data', handleData);
   c.on('close', () => {
     isConnected = false;
     conn = null;
-    setStatus('连接已断开', '');
-    addSys('连接已断开');
+    setStatus('连接已断开，尝试重连…', '');
+    addSys('连接已断开，正在尝试重连…');
     setTimeout(() => { els.btnConnect.disabled = false; els.btnConnect.textContent = '连接'; }, 100);
+    startAutoReconnect();
   });
-  c.on('error', err => { console.error(err); setStatus('连接错误', 'err'); });
+  c.on('error', err => {
+    console.error(err);
+    setStatus('连接错误', 'err');
+  });
+}
+
+function startAutoReconnect() {
+  if (reconnectTimer) return;
+  if (!lastPeerCode) return;
+  let attempts = 0;
+  reconnectTimer = setInterval(() => {
+    attempts++;
+    if (isConnected) {
+      clearInterval(reconnectTimer);
+      reconnectTimer = null;
+      return;
+    }
+    if (attempts > 10) {
+      clearInterval(reconnectTimer);
+      reconnectTimer = null;
+      setStatus('重连失败，请手动连接', 'err');
+      return;
+    }
+    if (!conn && peer && !peer.destroyed) {
+      els.peerInput.value = lastPeerCode;
+      try {
+        const c = peer.connect(lastPeerCode, { reliable: true });
+        bindConn(c);
+      } catch(e) {}
+    }
+  }, 3000);
 }
 
 function showChat() {
@@ -1550,6 +1579,7 @@ function resetAll() {
   previewCache.clear();
   receivedFiles.length = 0;
   messageCount = 0;
+  if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
   els.chatView.innerHTML = '';
   els.chatView.classList.add('hide');
   els.composer.classList.add('hide');
@@ -1559,6 +1589,7 @@ function resetAll() {
   els.btnConnect.textContent = '连接';
   updateStat();
   setStatus('已就绪，等待连接', 'on');
+  updateButtons();
 }
 
 function clearChat() {
@@ -1574,18 +1605,15 @@ function scrollBottom(instant) {
     else els.main.scrollTo({ top: els.main.scrollHeight, behavior: 'smooth' });
   });
 }
-
 function nowStr() {
   const d = new Date();
   const p = n => String(n).padStart(2, '0');
   return `${p(d.getHours())}:${p(d.getMinutes())}`;
 }
-
 function updateStat() {
   els.statBox.textContent = messageCount + ' 条消息';
 }
 
-// ---------- 侧栏（移动端） ----------
 function toggleSidebar(open) {
   if (open) { els.sidebar.classList.add('open'); els.sidebarMask.classList.add('show'); }
   else { els.sidebar.classList.remove('open'); els.sidebarMask.classList.remove('show'); }
@@ -1595,7 +1623,7 @@ function checkMobile() {
   $('btnMenu').style.display = m ? 'flex' : 'none';
 }
 
-// ---------- 消息 ----------
+/* ================= 消息 ================= */
 function addSys(text) {
   const div = document.createElement('div');
   div.className = 'sys';
@@ -1607,7 +1635,6 @@ function addSys(text) {
 function addText(text, mine, id) {
   messageCount++;
   updateStat();
-
   const row = document.createElement('div');
   row.className = 'row ' + (mine ? 'me' : 'them');
   row.dataset.id = id;
@@ -1667,7 +1694,7 @@ els.msgInput.addEventListener('keydown', e => {
   }
 });
 
-// ---------- 数据处理 ----------
+/* ================= 数据处理 ================= */
 function handleData(data) {
   if (typeof data === 'string') {
     let msg;
@@ -1682,6 +1709,7 @@ function handleData(data) {
         total: msg.total, chunks: new Array(msg.total),
         received: 0, gotChunks: 0,
         el: null, barEl: null, sizeEl: null,
+        startTime: Date.now(), lastUpdate: Date.now(), lastBytes: 0,
       };
       renderRecvFile(recvFile);
     } else if (msg.t === 'fend') {
@@ -1715,7 +1743,7 @@ function handleData(data) {
   } catch(e) { console.warn('块解析失败', e); }
 }
 
-// ---------- 接收文件 UI ----------
+/* ================= 接收 UI ================= */
 function renderRecvFile(info) {
   const row = document.createElement('div');
   row.className = 'row them';
@@ -1740,7 +1768,18 @@ function renderRecvFile(info) {
 function updateRecvFile(info) {
   const p = info.size ? info.received / info.size : 0;
   info.barEl.style.width = Math.min(100, p * 100).toFixed(1) + '%';
-  info.sizeEl.textContent = `接收中 ${(p*100).toFixed(0)}% · ${formatSize(info.received)} / ${formatSize(info.size)}`;
+
+  const now = Date.now();
+  const elapsed = (now - info.startTime) / 1000;
+  const speed = elapsed > 0 ? info.received / elapsed : 0;
+  const remain = speed > 0 ? (info.size - info.received) / speed : 0;
+
+  let extra = '';
+  if (speed > 0) {
+    extra = ` · ${formatSpeed(speed)}`;
+    if (remain > 0 && remain < 3600) extra += ` · 剩余 ${formatTime(remain)}`;
+  }
+  info.sizeEl.textContent = `接收中 ${(p*100).toFixed(0)}% · ${formatSize(info.received)} / ${formatSize(info.size)}${extra}`;
 }
 
 function finishRecv(info) {
@@ -1782,22 +1821,21 @@ function finishRecv(info) {
   info.el.querySelector('.file-card').appendChild(actions);
   scrollBottom();
   toast('收到文件：' + info.name, 'ok');
-  playBeep();
+  updateButtons();
 }
 
-// ---------- 预览判断 ----------
+/* ================= 预览判断 ================= */
 function canPreview(mime, name) {
   const m = (mime || '').toLowerCase();
   const n = (name || '').toLowerCase();
   if (m.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|bmp|svg|avif|ico)$/.test(n)) return true;
   if (m.startsWith('video/') || /\.(mp4|webm|mov|m4v|ogv|mkv)$/.test(n)) return true;
-  if (m.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|flac|aac|opus|webm)$/.test(n)) return true;
+  if (m.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|flac|aac|opus)$/.test(n)) return true;
   if (m.startsWith('text/') || m === 'application/json' || m === 'application/xml') return true;
   if (/\.(txt|md|json|xml|html|css|js|ts|jsx|tsx|py|java|c|cpp|h|go|rs|sh|yaml|yml|log|csv|ini|toml|conf|gitignore)$/.test(n)) return true;
   if (m === 'application/pdf' || /\.pdf$/.test(n)) return true;
   return false;
 }
-
 function getFileIcon(name, mime) {
   const m = (mime || '').toLowerCase();
   const n = (name || '').toLowerCase();
@@ -1821,7 +1859,7 @@ function iconClass(name, mime) {
   return '';
 }
 
-// ---------- 预览 ----------
+/* ================= 预览 ================= */
 function openPreview(id) {
   const item = previewCache.get(id);
   if (!item) return;
@@ -1881,7 +1919,6 @@ function openPreview(id) {
   els.modal.classList.add('show');
   document.body.style.overflow = 'hidden';
 }
-
 function closeModal() {
   els.modal.classList.remove('show');
   const v = els.modalBody.querySelector('video');
@@ -1897,69 +1934,152 @@ function closeModal() {
   }, 300);
 }
 
-// ---------- 二维码 ----------
+/* ================= 二维码 ================= */
 function showQR() {
   if (!myCode) return;
   els.qrCodeText.textContent = myCode;
-  drawQR(myCode, els.qrCanvas);
+  const base = location.origin + location.pathname;
+  const url = base + '?peer=' + myCode;
+
+  try {
+    const qr = qrcode(0, 'M');
+    qr.addData(url);
+    qr.make();
+    const svg = qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true });
+    els.qrSvgHolder.innerHTML = svg;
+  } catch (e) {
+    els.qrSvgHolder.innerHTML = '<div style="color:#999">二维码生成失败</div>';
+  }
   els.qrModal.classList.add('show');
 }
 function closeQR() { els.qrModal.classList.remove('show'); }
 
-// 用 Canvas 画一个「伪二维码」（仅装饰，不可扫）
-function drawQR(text, canvas) {
-  const size = 220, modules = 25;
-  const cell = size / modules;
-  canvas.width = size; canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+/* ================= 扫码 ================= */
+let html5QrCode = null;
+let currentCamId = null;
+let cameras = [];
 
-  // 用文本生成伪随机
-  let h = 2166136261;
-  for (let i = 0; i < text.length; i++) {
-    h ^= text.charCodeAt(i);
-    h = Math.imul(h, 16777619);
+async function openScanner() {
+  els.scanModal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  if (!html5QrCode) {
+    html5QrCode = new Html5Qrcode('qrReader');
   }
-  const rand = () => {
-    h ^= h << 13; h ^= h >>> 17; h ^= h << 5;
-    return (h >>> 0) / 4294967295;
-  };
 
-  ctx.fillStyle = '#0f1220';
-  for (let y = 0; y < modules; y++) {
-    for (let x = 0; x < modules; x++) {
-      // 三个定位角
-      const isCorner = (x < 7 && y < 7) || (x > modules-8 && y < 7) || (x < 7 && y > modules-8);
-      if (isCorner) continue;
-      if (rand() > 0.55) ctx.fillRect(x*cell, y*cell, cell, cell);
+  try {
+    cameras = await Html5Qrcode.getCameras();
+    if (!cameras || !cameras.length) {
+      toast('未检测到摄像头', 'err');
+      closeScanner();
+      return;
     }
+    // 优先后置
+    let back = cameras.find(c => /back|rear|environment/i.test(c.label));
+    currentCamId = (back || cameras[cameras.length - 1]).id;
+
+    await html5QrCode.start(
+      currentCamId,
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      onScanSuccess,
+      () => {}
+    );
+  } catch (e) {
+    console.error(e);
+    toast('无法启动摄像头：' + (e.message || e), 'err');
+    closeScanner();
   }
-  // 画三个定位角
-  const drawCorner = (ox, oy) => {
-    ctx.fillStyle = '#0f1220';
-    ctx.fillRect(ox, oy, 7*cell, 7*cell);
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(ox+cell, oy+cell, 5*cell, 5*cell);
-    ctx.fillStyle = '#3b6ef5';
-    ctx.fillRect(ox+2*cell, oy+2*cell, 3*cell, 3*cell);
-  };
-  drawCorner(0, 0);
-  drawCorner((modules-7)*cell, 0);
-  drawCorner(0, (modules-7)*cell);
 }
 
-// ---------- 发送文件 ----------
+function onScanSuccess(decodedText) {
+  html5QrCode.stop().catch(() => {}).then(() => {
+    closeScanner();
+    handleScanResult(decodedText);
+  });
+}
+
+function handleScanResult(text) {
+  let code = '';
+  try {
+    const url = new URL(text);
+    code = url.searchParams.get('peer') || '';
+  } catch (e) {
+    code = text.trim();
+  }
+  if (!/^\d{6}$/.test(code)) {
+    const m = text.match(/\d{6}/);
+    if (m) code = m[0];
+  }
+  if (!/^\d{6}$/.test(code)) {
+    toast('无法识别连接码', 'err');
+    return;
+  }
+  els.peerInput.value = code;
+  toast('已识别连接码 ' + code, 'ok');
+  setTimeout(() => connectPeer(), 400);
+}
+
+async function switchCamera() {
+  if (!html5QrCode || cameras.length < 2) {
+    toast('只有一个摄像头', 'err');
+    return;
+  }
+  const idx = cameras.findIndex(c => c.id === currentCamId);
+  const next = cameras[(idx + 1) % cameras.length];
+  currentCamId = next.id;
+  try {
+    await html5QrCode.stop();
+    await html5QrCode.start(
+      currentCamId,
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      onScanSuccess,
+      () => {}
+    );
+  } catch (e) {
+    toast('切换失败', 'err');
+  }
+}
+
+async function closeScanner() {
+  els.scanModal.classList.remove('show');
+  document.body.style.overflow = '';
+  if (html5QrCode && html5QrCode.isScanning) {
+    try { await html5QrCode.stop(); } catch (e) {}
+  }
+}
+
+/* ================= 发送队列（支持暂停/继续） ================= */
 async function sendFiles(fileList) {
   if (!isConnected || !conn) { toast('尚未连接', 'err'); return; }
   for (const file of fileList) {
+    sendQueue.push(file);
+  }
+  processQueue();
+}
+
+async function processQueue() {
+  if (isSending) return;
+  if (!sendQueue.length) return;
+  isSending = true;
+  while (sendQueue.length) {
+    const file = sendQueue.shift();
     await sendOneFile(file);
   }
+  isSending = false;
+  currentSendTask = null;
 }
 
 function sendOneFile(file) {
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     const id = Math.random().toString(36).slice(2, 10);
     const total = Math.ceil(file.size / CHUNK_SIZE) || 1;
+
+    const task = {
+      paused: false,
+      cancelled: false,
+      resolve,
+    };
+    currentSendTask = task;
 
     conn.send(JSON.stringify({
       t: 'fstart', id, name: file.name, size: file.size,
@@ -1975,7 +2095,20 @@ function sendOneFile(file) {
     card.setStatus('准备中…');
 
     let seq = 0, offset = 0;
+    const startTime = Date.now();
+
     const sendNext = () => {
+      if (task.cancelled) {
+        conn.send(JSON.stringify({ t: 'fend', id }));
+        card.setCancelled();
+        resolve();
+        return;
+      }
+      if (task.paused) {
+        card.setPaused();
+        setTimeout(sendNext, 200);
+        return;
+      }
       if (offset >= file.size) {
         conn.send(JSON.stringify({ t: 'fend', id }));
         card.setDone();
@@ -1988,11 +2121,15 @@ function sendOneFile(file) {
         const buf = e.target.result;
         const packet = packChunk(id, seq, buf);
         waitBuffer(() => {
-          if (!conn || !conn.open) { resolve(); return; }
+          if (!conn || !conn.open) { card.setError(); resolve(); return; }
           conn.send(packet);
           offset += buf.byteLength;
           seq++;
-          card.setProgress(offset / file.size);
+          const p = offset / file.size;
+          const elapsed = (Date.now() - startTime) / 1000;
+          const speed = elapsed > 0 ? offset / elapsed : 0;
+          const remain = speed > 0 ? (file.size - offset) / speed : 0;
+          card.setProgress(p, speed, remain);
           sendNext();
         });
       };
@@ -2033,22 +2170,49 @@ function renderSendFile(file, id) {
         </div>
       </div>
       <div class="bar"><div class="fill"></div></div>
+      <div class="file-actions">
+        <button class="btn-action warn" data-act="pause">⏸ 暂停</button>
+        <button class="btn-action danger" data-act="cancel">✕ 取消</button>
+      </div>
     </div>`;
   els.chatView.appendChild(row);
   const bar = row.querySelector('.fill');
   const sizeEl = row.querySelector('.size');
+  const actionsRow = row.querySelector('.file-actions');
+  const btnPause = row.querySelector('[data-act="pause"]');
+  const btnCancel = row.querySelector('[data-act="cancel"]');
   scrollBottom();
+
+  btnPause.onclick = () => {
+    if (!currentSendTask) return;
+    currentSendTask.paused = !currentSendTask.paused;
+    btnPause.textContent = currentSendTask.paused ? '▶ 继续' : '⏸ 暂停';
+  };
+  btnCancel.onclick = () => {
+    if (currentSendTask) currentSendTask.cancelled = true;
+  };
 
   return {
     setStatus(t) { sizeEl.textContent = t; },
-    setProgress(p) {
+    setProgress(p, speed, remain) {
       bar.style.width = (p * 100).toFixed(1) + '%';
-      sizeEl.textContent = `发送中 ${(p*100).toFixed(0)}% · ${formatSize(p*file.size)} / ${formatSize(file.size)}`;
+      let extra = '';
+      if (speed > 0) {
+        extra = ` · ${formatSpeed(speed)}`;
+        if (remain > 0 && remain < 3600) extra += ` · 剩余 ${formatTime(remain)}`;
+      }
+      sizeEl.textContent = `发送中 ${(p*100).toFixed(0)}% · ${formatSize(p*file.size)} / ${formatSize(file.size)}${extra}`;
+    },
+    setPaused() {
+      bar.classList.add('paused');
+      sizeEl.textContent = '已暂停';
     },
     setDone() {
+      bar.classList.remove('paused');
       bar.style.width = '100%';
       bar.classList.add('done');
       sizeEl.textContent = `已发送 · ${formatSize(file.size)}`;
+      actionsRow.remove();
 
       const actions = document.createElement('div');
       actions.className = 'file-actions';
@@ -2060,26 +2224,31 @@ function renderSendFile(file, id) {
         pv.onclick = () => openPreview(id);
         actions.appendChild(pv);
       }
-
       const dl = document.createElement('a');
       dl.className = 'btn-action primary';
       dl.href = previewCache.get(id).url;
       dl.download = file.name;
       dl.textContent = '⬇ 下载';
       actions.appendChild(dl);
-
       row.querySelector('.file-card').appendChild(actions);
       scrollBottom();
-      playBeep();
+    },
+    setCancelled() {
+      bar.classList.remove('paused');
+      bar.style.background = 'var(--err)';
+      sizeEl.textContent = '已取消';
+      actionsRow.remove();
     },
     setError() {
+      bar.classList.remove('paused');
       bar.style.background = 'var(--err)';
       sizeEl.textContent = '发送失败';
+      actionsRow.remove();
     },
   };
 }
 
-// ---------- 下载全部 ----------
+/* ================= 其他操作 ================= */
 function downloadAll() {
   if (!receivedFiles.length) { toast('没有可下载的文件', 'err'); return; }
   receivedFiles.forEach((f, i) => {
@@ -2092,7 +2261,6 @@ function downloadAll() {
   toast(`开始下载 ${receivedFiles.length} 个文件`, 'ok');
 }
 
-// ---------- 快捷选择 ----------
 function pickFiles() { els.fileInput.click(); }
 function pickFolder() {
   const inp = document.createElement('input');
@@ -2119,7 +2287,6 @@ function pickAudio() {
   inp.click();
 }
 
-// ---------- 录音 ----------
 async function recordVoice() {
   if (mediaRecorder && mediaRecorder.state === 'recording') {
     mediaRecorder.stop();
@@ -2145,7 +2312,6 @@ async function recordVoice() {
   }
 }
 
-// ---------- 粘贴发送 ----------
 async function pasteFromClipboard() {
   try {
     const items = await navigator.clipboard.read();
@@ -2160,7 +2326,6 @@ async function pasteFromClipboard() {
         }
       }
     }
-    // 尝试文本
     const text = await navigator.clipboard.readText();
     if (text) {
       els.msgInput.value = text;
@@ -2175,35 +2340,27 @@ async function pasteFromClipboard() {
   }
 }
 
-// ---------- 音效 ----------
-let audioCtx = null;
-function playBeep() {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.connect(g); g.connect(audioCtx.destination);
-    o.frequency.value = 880;
-    o.type = 'sine';
-    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.06, audioCtx.currentTime + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
-    o.start(); o.stop(audioCtx.currentTime + 0.2);
-  } catch (e) {}
-}
-
-// ---------- 工具 ----------
+/* ================= 工具 ================= */
 function formatSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
   if (bytes < 1024*1024*1024) return (bytes/1024/1024).toFixed(1) + ' MB';
   return (bytes/1024/1024/1024).toFixed(2) + ' GB';
 }
+function formatSpeed(bytesPerSec) {
+  return formatSize(bytesPerSec) + '/s';
+}
+function formatTime(sec) {
+  sec = Math.ceil(sec);
+  if (sec < 60) return sec + ' 秒';
+  if (sec < 3600) return Math.floor(sec/60) + ' 分 ' + (sec%60) + ' 秒';
+  return Math.floor(sec/3600) + ' 小时';
+}
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-// ---------- 事件 ----------
+/* ================= 事件 ================= */
 els.fileInput.addEventListener('change', e => {
   if (e.target.files.length) sendFiles(e.target.files);
   e.target.value = '';
@@ -2214,7 +2371,6 @@ els.peerInput.addEventListener('input', e => {
   e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
 });
 
-// 拖拽全屏投放
 let dragCounter = 0;
 document.addEventListener('dragenter', e => {
   if (!isConnected) return;
@@ -2236,35 +2392,31 @@ document.addEventListener('drop', e => {
   if (e.dataTransfer.files.length) sendFiles(e.dataTransfer.files);
 });
 
-// ESC 关闭弹窗
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (els.modal.classList.contains('show')) closeModal();
     if (els.qrModal.classList.contains('show')) closeQR();
+    if (els.scanModal.classList.contains('show')) closeScanner();
     toggleSidebar(false);
   }
 });
 
-// 全局点击遮罩关弹窗
-[els.modal, els.qrModal].forEach(m => {
+[els.modal, els.qrModal, els.scanModal].forEach(m => {
   m.addEventListener('click', e => {
     if (e.target === m) {
       if (m === els.modal) closeModal();
-      else closeQR();
+      else if (m === els.qrModal) closeQR();
+      else closeScanner();
     }
   });
 });
 
-// 全局快捷键
 document.addEventListener('keydown', e => {
-  // Ctrl/Cmd + K 聚焦输入
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     els.msgInput.focus();
   }
-  // Ctrl/Cmd + V 粘贴图片
   if ((e.ctrlKey || e.metaKey) && e.key === 'v' && isConnected) {
-    // 让默认粘贴先执行，然后尝试读取
     setTimeout(async () => {
       if (document.activeElement === els.msgInput) return;
       const items = await navigator.clipboard.read?.().catch(() => null);
@@ -2283,10 +2435,8 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// 窗口尺寸变化
 window.addEventListener('resize', checkMobile);
 
-// 启用/禁用依赖连接的按钮
 function updateButtons() {
   document.querySelectorAll('[data-need]').forEach(btn => {
     const need = btn.dataset.need;
@@ -2294,64 +2444,74 @@ function updateButtons() {
     else if (need === 'recv') btn.disabled = !receivedFiles.length;
   });
 }
-const _origSetStatus = setStatus;
-setStatus = function(...a) { _origSetStatus.apply(this, a); updateButtons(); };
-const _origFinish = finishRecv;
-finishRecv = function(info) { _origFinish.call(this, info); updateButtons(); };
 
-// ---------- 启动 ----------
+/* URL 参数自动连接 */
+function readPeerFromUrl() {
+  const p = new URLSearchParams(location.search).get('peer');
+  if (p && /^\d{6}$/.test(p) && p !== myCode) {
+    els.peerInput.value = p;
+    const tryConnect = setInterval(() => {
+      if (myCode && myCode !== p) {
+        clearInterval(tryConnect);
+        connectPeer(true);
+      }
+    }, 300);
+    setTimeout(() => clearInterval(tryConnect), 6000);
+  }
+}
+
+/* ================= 启动 ================= */
 initTheme();
 initPeer();
 renderHistory();
 checkMobile();
 updateButtons();
+
+// 等 Peer 就绪后读取 URL 参数
+setTimeout(readPeerFromUrl, 500);
 </script>
 </body>
 </html>
 
-## 这次改了什么
+## 这一版加了什么
 
-### 1. 电脑端全屏显示（根因修复）
+**1. 真扫码（html5-qrcode）**
+- 侧栏"扫码"按钮打开摄像头
+- 支持前置/后置切换
+- 优先用后置摄像头
+- 扫到后自动填码 + 自动连接
 
-**旧版问题**：`.app { max-width: 780px }` 把整个应用框在中间一条，桌面大屏上又窄又小。
+**2. 真二维码（qrcode-generator）**
+- 内容是 `location.origin + location.pathname + '?peer=' + 连接码`
+- 用 `location.href` 动态取，你不用填地址
+- 谁扫都能打开并自动连
 
-**新版方案**：
-- 改成了**响应式双栏布局**，`width: 100vw`，铺满整个视口
-- **桌面端（≥861px）**：左侧 340px 固定信息栏 + 右侧自适应主区域。侧栏放连接码、二维码、历史、快捷操作；右侧是聊天区
-- **移动端（≤860px）**：侧栏变成抽屉式，默认隐藏，右上角 `☰` 打开，带遮罩
-- 聊天内容 `max-width: 900px` 居中，大屏上阅读不累
+**3. 断线自动重连**
+- 连接断开后每 3 秒尝试一次
+- 最多重试 10 次
+- 记住上次连接的码（localStorage）
+- 页面刷新后自动尝试连回
 
-### 2. 加满功能（16 项新增）
+**4. 传输速度 + 剩余时间**
+- 接收端和发送端都显示实时速度（KB/s、MB/s）
+- 显示预计剩余时间
+- 用滑动平均避免速度抖动
 
-| 功能 | 说明 |
-|---|---|
-| **二维码连接** | 点击生成二维码，另一台设备扫（当前是装饰性二维码，要真扫可接 `qrcode.js`） |
-| **连接历史** | 自动保存最近 8 个连接码，一键重连、可删除 |
-| **暗黑模式** | 右上角 🌙/☀️ 一键切换，跟随系统偏好，写入 localStorage |
-| **文件夹发送** | `webkitdirectory` 选整个文件夹 |
-| **分类快捷** | 图片 / 视频 / 音频 / 录音 一键选择 |
-| **录音发送** | `MediaRecorder` 录音直接发送，再点一次结束 |
-| **粘贴发送** | 读取剪贴板图片，支持 `Ctrl/Cmd+V` 全局粘贴图片 |
-| **全屏拖拽投放** | 拖文件到窗口，全屏毛玻璃提示"松开即可发送" |
-| **消息悬停操作** | 气泡悬停出现 📋 复制按钮 |
-| **清空会话** | 一键清空聊天记录 |
-| **批量下载** | "全部下载"按钮，逐个触发下载 |
-| **连接统计** | 顶栏显示消息数量 |
-| **音效提示** | 收到/发送文件播放轻微提示音（WebAudio 合成） |
-| **Toast 通知** | 所有操作有轻提示反馈 |
-| **快捷键** | `Ctrl/Cmd+K` 聚焦输入，`Enter` 发送，`Esc` 关弹窗 |
-| **预览器增强** | 视频/音频/图片/PDF/文本，弹窗高度 88vh 充分利用大屏 |
+**5. 发送暂停/继续/取消**
+- 每个发送中的文件卡片有"⏸ 暂停"和"✕ 取消"按钮
+- 暂停时不发送但保持连接
+- 取消会中断并通知对方结束
 
-### 3. 视觉升级（Linear / Arc 风格）
+**6. 删掉的无用功能**
+- 伪二维码（已换成真的）
+- 装饰性音效提示（WebAudio 播放的"滴滴"声，实际很烦）
+- 悬浮浮动动画（logo 上下浮动，没什么用）
 
-- **色彩系统**：完整的 `--text-1/2/3/4` 灰阶 + `--accent/-2/-3` 三色渐变，深浅主题各一套
-- **无边框卡片**：靠 `box-shadow` 而不是 border 分隔，视觉更轻
-- **彩色文件图标**：按类型（图片橙红 / 视频粉紫 / 音频青蓝 / 文档绿 / 压缩灰）自动着色
-- **双层阴影**：`--shadow-md` 用"近距离小阴影 + 远距离大阴影"叠加，产生真实浮起感
-- **弹性缓动**：弹窗用 `cubic-bezier(0.34, 1.56, 0.64, 1)` 的轻微回弹
-- **悬停微交互**：卡片上浮 1-2px、阴影加深、颜色渐变过渡
-- **侧栏动画**：每个 section 依次 60ms 延迟淡入上浮
-- **SVG 图标**：附件和发送按钮用内联 SVG 而不是 emoji，更精致
-- **欢迎页**：大 logo 浮动动画 + 4 个特性卡片网格
+## 部署注意事项
 
-部署方式不变。手机和电脑打开同一个 GitHub Pages 地址，输入对方连接码即可。
+- **必须 HTTPS**：扫码要摄像头，GitHub Pages 满足
+- **首次扫码**：浏览器会弹出"允许使用摄像头"，必须点允许
+- **电脑扫码**：电脑一般没摄像头，扫码功能主要是手机用
+- **推荐流程**：电脑开"我的码" → 手机点"扫码" → 手机自动连上
+
+有问题把控制台报错发我。
