@@ -145,7 +145,6 @@
     overflow: hidden;
   }
 
-  /* ===== 顶栏 ===== */
   .topbar {
     display: flex;
     align-items: center;
@@ -224,7 +223,6 @@
   .icon-btn:active { transform: translateY(0) scale(.94); }
   .icon-btn.hide { display: none; }
 
-  /* ===== 主区域 ===== */
   .main {
     flex: 1 1 0;
     min-height: 0;
@@ -237,7 +235,6 @@
   .main::-webkit-scrollbar { width: 8px; }
   .main::-webkit-scrollbar-thumb { background: rgba(128,140,180,.25); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
 
-  /* ===== 网络状态提示 ===== */
   .net-banner {
     position: sticky;
     top: 0;
@@ -258,7 +255,6 @@
     to { transform: translateY(0); opacity: 1; }
   }
 
-  /* ===== 首页 ===== */
   .connect-page {
     width: 100%;
     max-width: 500px;
@@ -378,7 +374,6 @@
     margin-top: 16px;
   }
 
-  /* 按钮 */
   .btn {
     border: none;
     border-radius: var(--r-md);
@@ -526,7 +521,6 @@
     gap: 8px;
   }
 
-  /* ===== 聊天 ===== */
   .chat-wrap {
     width: 100%;
     display: flex;
@@ -763,7 +757,6 @@
     color: var(--err);
   }
 
-  /* ===== 底栏 ===== */
   .composer {
     flex-shrink: 0;
     padding: 12px 20px;
@@ -867,7 +860,6 @@
   .send-btn:disabled { background: rgba(128,140,180,.2); color: var(--text-4); box-shadow: none; cursor: not-allowed; }
   .send-btn:disabled::after { display: none; }
 
-  /* ===== 弹窗 ===== */
   .modal {
     position: fixed;
     inset: 0;
@@ -1007,7 +999,6 @@
   #qrReader video { width: 100% !important; height: auto !important; display: block; }
   #qrReader img { display: none; }
 
-  /* 菜单 */
   .menu {
     position: absolute;
     top: calc(100% + 6px);
@@ -1049,7 +1040,6 @@
   .menu-item.danger:hover { background: var(--err-soft); }
   .menu-sep { height: 1px; background: var(--glass-border); margin: 4px 0; }
 
-  /* Toast */
   .toast-wrap {
     position: fixed;
     top: calc(20px + env(safe-area-inset-top));
@@ -1223,7 +1213,6 @@
   <div class="net-banner" id="netBanner">⚠️ 网络已断开，正在等待恢复…</div>
 
   <main class="main" id="main">
-    <!-- 首页 -->
     <section class="connect-page" id="connectView">
 
       <div class="glass-card qr-hero">
@@ -1290,7 +1279,6 @@
 
 <input type="file" id="fileInput" multiple style="display:none">
 
-<!-- 预览弹窗 -->
 <div class="modal" id="modal">
   <div class="modal-inner">
     <div class="modal-head">
@@ -1302,7 +1290,6 @@
   </div>
 </div>
 
-<!-- 二维码放大弹窗 -->
 <div class="modal" id="qrModal">
   <div class="modal-inner sm">
     <div class="modal-head">
@@ -1319,7 +1306,6 @@
   </div>
 </div>
 
-<!-- 扫码弹窗 -->
 <div class="modal" id="scanModal">
   <div class="modal-inner md">
     <div class="modal-head">
@@ -1336,7 +1322,6 @@
   </div>
 </div>
 
-<!-- 传输历史弹窗 -->
 <div class="modal" id="historyModal">
   <div class="modal-inner md">
     <div class="modal-head">
@@ -1353,7 +1338,6 @@
   </div>
 </div>
 
-<!-- 搜索弹窗 -->
 <div class="modal" id="searchModal">
   <div class="modal-inner md">
     <div class="modal-head">
@@ -1369,7 +1353,6 @@
   </div>
 </div>
 
-<!-- 拖拽投放 -->
 <div class="drop-overlay" id="dropOverlay">
   <div class="drop-box">
     <span class="ico">📥</span>
@@ -2125,17 +2108,36 @@ window.addEventListener('offline', () => {
   els.netBanner.classList.add('show');
 });
 
-/* ============ PeerJS ============ */
+/* ============ PeerJS（含 TURN） ============ */
 function initPeer() {
   myCode = genCode();
   peer = new Peer(myCode, {
     debug: 1,
     config: {
       iceServers: [
+        // ---- STUN：帮助发现公网地址 ----
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun.cloudflare.com:3478' },
+        // ---- TURN：NAT 穿透失败时中转（公开免费，仅测试用） ----
+        {
+          urls: 'turn:openrelay.metered.ca:80',
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
+        },
+        {
+          urls: 'turn:openrelay.metered.ca:443',
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
+        },
+        {
+          urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
+        }
       ],
+      iceCandidatePoolSize: 10,
+      sdpSemantics: 'unified-plan'
     },
   });
 
@@ -2160,6 +2162,8 @@ function initPeer() {
       els.btnConnect.disabled = false;
       els.btnConnect.textContent = '连接';
       toast('连接失败：对方不在线', 'err');
+    } else if (err.type === 'network' || err.type === 'server-error') {
+      setStatus('信令服务器连接异常，正在重试…', 'err');
     } else {
       setStatus('连接异常：' + err.type, 'err');
     }
@@ -2189,7 +2193,7 @@ function connectPeer() {
   if (target === myCode) { toast('不能连接自己', 'err'); return; }
   els.btnConnect.disabled = true;
   els.btnConnect.textContent = '连接中';
-  setStatus('正在连接 ' + target + ' …', '');
+  setStatus('正在连接 ' + target + ' …（可能需要 10-30 秒）', '');
   const c = peer.connect(target, { reliable: true });
   bindConn(c);
 }
